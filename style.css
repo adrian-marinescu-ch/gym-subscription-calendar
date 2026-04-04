@@ -211,7 +211,7 @@ details summary:focus {
 }
 
 .field-label,
-.field > span,
+.field>span,
 .interval-fields label span,
 .interval-head {
   font-weight: 600;
@@ -333,6 +333,7 @@ details summary:focus {
 
 .table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid #e2e8f0;
   border-radius: 0.9rem;
 }
@@ -464,5 +465,26 @@ details summary {
 
   .action-row button {
     width: 100%;
+  }
+
+  .table-wrap {
+    overflow-x: visible;
+  }
+
+  table {
+    min-width: 0;
+    table-layout: fixed;
+    font-size: 0.92rem;
+  }
+
+  th,
+  td {
+    padding: 0.6rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .mono {
+    white-space: normal;
   }
 }
