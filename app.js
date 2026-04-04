@@ -212,7 +212,7 @@
   const DEFAULT_STATE = {
     startDate: '2026-01-05',
     sessionTime: DEFAULT_SESSION_TIME,
-    monthlyPrice: 300,
+    monthlyPrice: 150,
     weekdays: [1, 3, 5],
     exclusions: [
       { id: makeId(), start: '2026-04-10', end: '2026-04-13' },
