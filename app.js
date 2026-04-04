@@ -42,7 +42,6 @@
       paymentNo: 'Plata',
       paymentDate: 'Data pl\u0103\u021Bii',
       paymentThreshold: 'Prag cumulat',
-      referenceMonth: 'Luna de referin\u021B\u0103',
       monthSessionCount: '\u0218edin\u021Be eligibile \u00EEn lun\u0103',
       coverageDate: 'Acoper\u0103 p\u00E2n\u0103 la',
       refreshForUpdate: 'Re\u00EEnc\u0103rcare pentru actualizare',
@@ -134,7 +133,6 @@
       paymentNo: 'Payment',
       paymentDate: 'Payment date',
       paymentThreshold: 'Cumulative threshold',
-      referenceMonth: 'Reference month',
       monthSessionCount: 'Eligible sessions in month',
       coverageDate: 'Covers until',
       refreshForUpdate: 'Reload to update',
@@ -620,10 +618,6 @@
         number: item.number,
         paymentDate,
         threshold: item.threshold,
-        referenceMonthKey: monthKey,
-        referenceMonthLabel: monthKey
-          ? formatMonthLabel(monthKey, currentState.language)
-          : tWithLanguage(currentState.language, 'none'),
         monthSessionCount: monthKey ? (monthCounts[monthKey] || 0) : '',
         coverageDate: item.consumedOn
       };
@@ -728,10 +722,9 @@
         <tr class="${highlight ? 'highlight-row' : ''}">
           <td><span class="status-chip">${payment.number}</span>${highlight ? `<span class="row-badge">${escapeHtml(t('dueBadge'))}</span>` : ''}</td>
           <td class="mono">${payment.paymentDate ? escapeHtml(formatDateLabel(payment.paymentDate)) : escapeHtml(t('none'))}</td>
-          <td class="mono">${escapeHtml(formatMoney(payment.threshold))}</td>
-          <td>${payment.paymentDate ? escapeHtml(payment.referenceMonthLabel) : escapeHtml(t('none'))}</td>
-          <td>${escapeHtml(monthCount)}</td>
           <td class="mono">${payment.coverageDate ? escapeHtml(formatDateLabel(payment.coverageDate)) : escapeHtml(t('none'))}</td>
+          <td class="mono">${escapeHtml(formatMoney(payment.threshold))}</td>
+          <td>${escapeHtml(monthCount)}</td>
         </tr>
       `;
     }).join('');
@@ -840,18 +833,18 @@
       return;
     }
     const rows = [
-      [t('paymentNo'), t('paymentDate'), t('paymentThreshold'), t('referenceMonth'), t('monthSessionCount'), t('coverageDate')],
+      [t('paymentNo'), t('paymentDate'), t('coverageDate'), t('paymentThreshold'), t('monthSessionCount')],
       ...currentData.payments.map((payment) => [
         payment.number,
         payment.paymentDate || '',
+        payment.coverageDate || '',
         payment.threshold.toFixed(2),
-        payment.paymentDate ? payment.referenceMonthLabel : '',
-        payment.monthSessionCount === '' ? '' : String(payment.monthSessionCount),
-        payment.coverageDate || ''
+        payment.monthSessionCount === '' ? '' : String(payment.monthSessionCount)
       ])
     ];
     const csv = rows.map((row) => row.map(csvEscape).join(',')).join('\r\n');
-    downloadFile(csv, `gym-subscription-schedule-${currentData.validStart}.csv`, 'text/csv;charset=utf-8');
+    const csvWithBom = '\uFEFF' + csv;
+    downloadFile(csvWithBom, `gym-subscription-schedule-${currentData.validStart}.csv`, 'text/csv;charset=utf-8');
   }
 
   function exportIcs() {
@@ -877,7 +870,6 @@
       const description = t('icsDescription', {
         threshold: formatMoney(payment.threshold),
         coverage: payment.coverageDate ? formatDateLabel(payment.coverageDate) : t('none'),
-        month: payment.paymentDate ? payment.referenceMonthLabel : t('none')
       });
 
       lines.push('BEGIN:VEVENT');
@@ -932,7 +924,12 @@
   }
 
   function downloadFile(content, filename, mimeType) {
-    const blob = new Blob([content], { type: mimeType });
+    const needsBom = mimeType.startsWith('text/csv');
+    const blob = new Blob(
+      needsBom ? ['\uFEFF', content] : [content],
+      { type: mimeType }
+    );
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
