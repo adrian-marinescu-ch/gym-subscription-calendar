@@ -608,15 +608,22 @@
       });
     }
 
-    const payments = thresholds.map((item) => {
-      const paymentDate = item.number === 1 ? validStart : item.consumedOn;
+    const payments = thresholds.map((item, index) => {
+      const paymentDate =
+        index === 0
+          ? validStart
+          : thresholds[index - 1]?.consumedOn || '';
+
       const monthKey = paymentDate ? paymentDate.slice(0, 7) : '';
+
       return {
         number: item.number,
         paymentDate,
         threshold: item.threshold,
         referenceMonthKey: monthKey,
-        referenceMonthLabel: monthKey ? formatMonthLabel(monthKey, currentState.language) : tWithLanguage(currentState.language, 'none'),
+        referenceMonthLabel: monthKey
+          ? formatMonthLabel(monthKey, currentState.language)
+          : tWithLanguage(currentState.language, 'none'),
         monthSessionCount: monthKey ? (monthCounts[monthKey] || 0) : '',
         coverageDate: item.consumedOn
       };
