@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'gym-subscription-pwa-state-v2';
+  const STORAGE_KEY = 'gym-subscription-pwa-state-v3';
   const LEGACY_STORAGE_KEYS = ['gym-subscription-pwa-state-v1'];
   const URL_PARAM = 'state';
   const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -16,7 +16,6 @@
       startDate: 'Data de start',
       sessionTime: 'Ora ședinței',
       timezoneDetected: 'Fus orar detectat',
-      timezoneHint: 'Exportul ICS folosește fusul orar detectat din browser sau sistemul de operare.',
       monthlyPrice: 'Abonament lunar (lei)',
       weekdays: 'Zile eligibile pentru antrenament',
       excludedTitle: 'Intervale excluse',
@@ -36,21 +35,19 @@
       cycleRange: 'Ciclu activ',
       remainingSessions: 'Ședințe rămase din azi',
       excludedPotentialSessions: 'Ședințe eliminate de intervale',
-      plainLanguageTitle: 'Explicație pe înțeles',
+      plainLanguageTitle: 'Explicații',
       actionsTitle: 'Export și distribuire',
       copyShareLink: 'Copiază link-ul sesiunii',
       exportCsv: 'Export CSV',
       exportIcs: 'Export ICS',
       shareHint: 'Link-ul copiat include data de start, ora ședinței, prețul, zilele și intervalele excluse. Limba rămâne locală pe fiecare dispozitiv.',
-      icsHint: 'Exportul ICS include toate ședințele eligibile ca evenimente de 60 de minute la ora selectată, în fusul orar detectat, plus scadențele de plată cu prefix vizibil.',
+      icsHint: 'Exportul ICS include toate ședințele eligibile ca evenimente de 120 de minute la ora selectată, în fusul orar detectat, plus scadențele de plată cu prefix vizibil.',
       offlineHint: 'Instalează aplicația ca PWA pentru utilizare offline după prima încărcare.',
       paymentTitle: 'Program plăți',
-      paymentHint: 'Plata 1 este avans la data de start. Plățile următoare cad pe prima ședință eligibilă care atinge pragul cumulat.',
       paymentNo: 'Plata',
       paymentDate: 'Data plății',
       paymentThreshold: 'Prag cumulat',
-      referenceMonth: 'Luna de referință',
-      monthSessionCount: 'Ședințe eligibile în lună',
+      monthSessionCount: 'Ședințe',
       coverageDate: 'Acoperă până la',
       refreshForUpdate: 'Reîncarcă pentru actualizare',
       offlineBanner: 'Ești offline. Interfața din cache și ultima stare locală rămân disponibile.',
@@ -98,18 +95,16 @@
       noteAnnual: ({ annual, monthly }) => `Totalul anual rămâne fix la ${annual} (${monthly} x 12).`,
       noteEligible: ({ count, removed }) => `În ciclul curent există ${count} ședințe eligibile, iar intervalele excluse elimină ${removed} zile care altfel ar fi fost eligibile.`,
       noteCost: ({ annual, count, cost }) => `Costul pe ședință devine ${cost} pentru că formula este ${annual} / ${count}.`,
-      notePayments: 'Plata 1 rămâne la data de start. După aceea, fiecare scadență cade pe prima ședință eligibilă care atinge pragul cumulat următor.',
       noteFinalCoverage: ({ date }) => `Ultimul prag anual este consumat la data de ${date}.`,
       noteRemaining: ({ count }) => `De azi înainte mai rămân ${count} ședințe eligibile în acest ciclu.`,
       noteInvalidIntervals: ({ count }) => `${count} interval(e) invalide sunt ignorate până le corectezi.`,
       noteNextPayment: ({ number, date, threshold }) => `Următoarea scadență este plata ${number} la data de ${date}, la pragul ${threshold}.`,
-      noteSessionExport: ({ time, timeZone }) => `Exportul ICS include ședințele eligibile la ora ${time}, în fusul orar ${timeZone}.`,
       nextDeadlineBadge: ({ number, date }) => `Următoarea scadență: plata ${number} - ${date}`,
       noUpcomingDeadline: 'Nu mai există scadențe viitoare în acest ciclu.',
       icsCalendarName: 'Calendar abonament sală',
       icsPaymentSummary: ({ number }) => `[PLATĂ] Scadență abonament #${number}`,
       icsPaymentDescription: ({ threshold, coverage, month }) => `Prag cumulat: ${threshold}. Luna de referință: ${month}. Acoperă până la: ${coverage}.`,
-      icsGymSummary: ({ number }) => `[SALĂ] Ședință eligibilă #${number}`,
+      icsGymSummary: ({ number }) => `[SALĂ] Ședința #${number}`,
       icsGymDescription: ({ time, timeZone, sessionValue, accumulated }) => `Ora ședinței: ${time}. Fus orar: ${timeZone}. Valoare ședință: ${sessionValue}. Consum cumulat: ${accumulated}.`
     },
     en: {
@@ -119,7 +114,6 @@
       startDate: 'Start date',
       sessionTime: 'Session hour',
       timezoneDetected: 'Detected time zone',
-      timezoneHint: 'ICS export uses the time zone detected from the browser or operating system.',
       monthlyPrice: 'Monthly subscription (lei)',
       weekdays: 'Eligible training weekdays',
       excludedTitle: 'Excluded ranges',
@@ -139,21 +133,19 @@
       cycleRange: 'Active cycle',
       remainingSessions: 'Sessions remaining from today',
       excludedPotentialSessions: 'Sessions removed by ranges',
-      plainLanguageTitle: 'Plain-language explanation',
+      plainLanguageTitle: 'Explanations',
       actionsTitle: 'Export and sharing',
       copyShareLink: 'Copy share link',
       exportCsv: 'Export CSV',
       exportIcs: 'Export ICS',
       shareHint: 'The copied link includes the start date, session hour, price, weekdays, and excluded ranges. Language stays local on each device.',
-      icsHint: 'ICS export includes all eligible gym sessions as 60-minute events at the selected hour, in the detected time zone, plus payment deadlines with a clear prefix.',
+      icsHint: 'ICS export includes all eligible gym sessions as 120-minute events at the selected hour, in the detected time zone, plus payment deadlines with a clear prefix.',
       offlineHint: 'Install the app as a PWA to use it offline after the first load.',
       paymentTitle: 'Payment schedule',
-      paymentHint: 'Payment 1 is the advance payment on the start date. Later payments land on the first eligible session that reaches the cumulative threshold.',
       paymentNo: 'Payment',
       paymentDate: 'Payment date',
       paymentThreshold: 'Cumulative threshold',
-      referenceMonth: 'Reference month',
-      monthSessionCount: 'Eligible sessions in month',
+      monthSessionCount: 'Sessions',
       coverageDate: 'Covers until',
       refreshForUpdate: 'Reload to update',
       offlineBanner: 'You are offline. The cached shell and your latest local state are still available.',
@@ -201,18 +193,16 @@
       noteAnnual: ({ annual, monthly }) => `The annual total stays fixed at ${annual} (${monthly} x 12).`,
       noteEligible: ({ count, removed }) => `This cycle contains ${count} eligible sessions, and your excluded ranges remove ${removed} days that would otherwise have counted.`,
       noteCost: ({ annual, count, cost }) => `The cost per session becomes ${cost} because the formula is ${annual} / ${count}.`,
-      notePayments: 'Payment 1 stays on the start date. After that, each deadline lands on the first eligible session that reaches the next cumulative threshold.',
       noteFinalCoverage: ({ date }) => `The final annual threshold is consumed on ${date}.`,
       noteRemaining: ({ count }) => `From today onward, ${count} eligible sessions remain in this cycle.`,
       noteInvalidIntervals: ({ count }) => `${count} invalid range(s) are ignored until you fix them.`,
       noteNextPayment: ({ number, date, threshold }) => `The next due date is payment ${number} on ${date}, at the threshold ${threshold}.`,
-      noteSessionExport: ({ time, timeZone }) => `ICS export includes eligible gym sessions at ${time}, in the ${timeZone} time zone.`,
       nextDeadlineBadge: ({ number, date }) => `Next due date: payment ${number} - ${date}`,
       noUpcomingDeadline: 'There are no future due dates left in this cycle.',
       icsCalendarName: 'Gym subscription calendar',
       icsPaymentSummary: ({ number }) => `[PAYMENT] Gym subscription due #${number}`,
       icsPaymentDescription: ({ threshold, coverage, month }) => `Cumulative threshold: ${threshold}. Reference month: ${month}. Covers until: ${coverage}.`,
-      icsGymSummary: ({ number }) => `[GYM] Eligible session #${number}`,
+      icsGymSummary: ({ number }) => `[GYM] Session #${number}`,
       icsGymDescription: ({ time, timeZone, sessionValue, accumulated }) => `Session time: ${time}. Time zone: ${timeZone}. Session value: ${sessionValue}. Accumulated value: ${accumulated}.`
     }
   };
@@ -541,7 +531,7 @@
       return `
         <label class="weekday-pill ${checked ? 'selected' : ''}">
           <input type="checkbox" value="${day}" ${checked ? 'checked' : ''}>
-          <span>${escapeHtml(strings.weekdayShort[day])} - ${escapeHtml(strings.weekdayLong[day])}</span>
+          <span>${escapeHtml(strings.weekdayLong[day])}</span>
         </label>
       `;
     }).join('');
@@ -663,15 +653,17 @@
       });
     }
 
-    const payments = thresholds.map((item) => {
-      const paymentDate = item.number === 1 ? validStart : item.consumedOn;
+    const payments = thresholds.map((item, index) => {
+      const paymentDate =
+        index === 0
+          ? validStart
+          : thresholds[index - 1]?.consumedOn || '';
+      
       const monthKey = paymentDate ? paymentDate.slice(0, 7) : '';
       return {
         number: item.number,
         paymentDate,
         threshold: item.threshold,
-        referenceMonthKey: monthKey,
-        referenceMonthLabel: monthKey ? formatMonthLabel(monthKey, currentState.language) : tWithLanguage(currentState.language, 'none'),
         monthSessionCount: monthKey ? (monthCounts[monthKey] || 0) : '',
         coverageDate: item.consumedOn
       };
@@ -730,15 +722,10 @@
           count: formatCount(data.eligibleCount),
           cost: formatMoney(data.costPerSession)
         }));
-        notes.push(t('notePayments'));
         if (data.payments.length && data.payments[data.payments.length - 1].coverageDate) {
           notes.push(t('noteFinalCoverage', { date: formatDateLabel(data.payments[data.payments.length - 1].coverageDate) }));
         }
       }
-      notes.push(t('noteSessionExport', {
-        time: formatTimeLabel(state.sessionTime),
-        timeZone: getDetectedTimeZone()
-      }));
     } else {
       notes.push(t('noEligibleSessionsNote'));
     }
@@ -780,10 +767,9 @@
         <tr class="${highlight ? 'highlight-row' : ''}">
           <td><span class="status-chip">${payment.number}</span>${highlight ? `<span class="row-badge">${escapeHtml(t('dueBadge'))}</span>` : ''}</td>
           <td class="mono">${payment.paymentDate ? escapeHtml(formatDateLabel(payment.paymentDate)) : escapeHtml(t('none'))}</td>
-          <td class="mono">${escapeHtml(formatMoney(payment.threshold))}</td>
-          <td>${payment.paymentDate ? escapeHtml(payment.referenceMonthLabel) : escapeHtml(t('none'))}</td>
-          <td>${escapeHtml(monthCount)}</td>
           <td class="mono">${payment.coverageDate ? escapeHtml(formatDateLabel(payment.coverageDate)) : escapeHtml(t('none'))}</td>
+          <td>${escapeHtml(monthCount)}</td>
+          <td class="mono">${escapeHtml(formatMoney(payment.threshold))}</td>
         </tr>
       `;
     }).join('');
@@ -892,18 +878,17 @@
       return;
     }
     const rows = [
-      [t('paymentNo'), t('paymentDate'), t('paymentThreshold'), t('referenceMonth'), t('monthSessionCount'), t('coverageDate')],
+      [t('paymentNo'), t('paymentDate'), t('coverageDate'), t('paymentThreshold'), t('monthSessionCount')],
       ...currentData.payments.map((payment) => [
         payment.number,
         payment.paymentDate || '',
+        payment.coverageDate || '',
         payment.threshold.toFixed(2),
-        payment.paymentDate ? payment.referenceMonthLabel : '',
-        payment.monthSessionCount === '' ? '' : String(payment.monthSessionCount),
-        payment.coverageDate || ''
+        payment.monthSessionCount === '' ? '' : String(payment.monthSessionCount)
       ])
     ];
     const csv = rows.map((row) => row.map(csvEscape).join(',')).join('\r\n');
-    downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `gym-subscription-schedule-${currentData.validStart}.csv`);
+    downloadBlob(new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' }), `gym-subscription-schedule-${currentData.validStart}.csv`);
   }
 
   async function exportIcs() {
@@ -937,8 +922,7 @@
       const summary = t('icsPaymentSummary', { number: payment.number });
       const description = t('icsPaymentDescription', {
         threshold: formatMoney(payment.threshold),
-        coverage: payment.coverageDate ? formatDateLabel(payment.coverageDate) : t('none'),
-        month: payment.paymentDate ? payment.referenceMonthLabel : t('none')
+        coverage: payment.coverageDate ? formatDateLabel(payment.coverageDate) : t('none')
       });
 
       lines.push('BEGIN:VEVENT');
@@ -1199,8 +1183,8 @@
   function formatDateLabel(iso) {
     const date = parseIsoDate(iso);
     return new Intl.DateTimeFormat(state.language === 'en' ? 'en-US' : 'ro-RO', {
-      day: '2-digit',
-      month: 'short',
+      day: 'numeric',
+      month: 'long',
       year: 'numeric',
       timeZone: 'UTC'
     }).format(date);
@@ -1216,16 +1200,6 @@
       hour: '2-digit',
       minute: '2-digit'
     }).format(sample);
-  }
-
-  function formatMonthLabel(monthKey, language) {
-    const [year, month] = monthKey.split('-').map(Number);
-    const date = new Date(Date.UTC(year, month - 1, 1));
-    return new Intl.DateTimeFormat(language === 'en' ? 'en-US' : 'ro-RO', {
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'UTC'
-    }).format(date);
   }
 
   function toIcsDate(iso) {
