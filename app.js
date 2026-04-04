@@ -1,70 +1,81 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'gym-subscription-pwa-state-v1';
+  const STORAGE_KEY = 'gym-subscription-pwa-state-v2';
+  const LEGACY_STORAGE_KEYS = ['gym-subscription-pwa-state-v1'];
   const URL_PARAM = 'state';
   const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+  const DEFAULT_SESSION_TIME = '19:30';
+  const SESSION_DURATION_MINUTES = 120;
 
   const I18N = {
     ro: {
-      title: 'Calculator abonament sal\u0103',
-      subtitle: 'Totalul anual r\u0103m\u00E2ne fix, iar costul pe \u0219edin\u021B\u0103 se recalculeaz\u0103 automat din \u0219edin\u021Bele eligibile din ciclul de 12 luni.',
+      title: 'Calculator abonament sală',
+      subtitle: 'Totalul anual rămâne fix, iar costul pe ședință se recalculează automat din ședințele eligibile din ciclul de 12 luni.',
       configTitle: 'Configurare',
       startDate: 'Data de start',
+      sessionTime: 'Ora ședinței',
+      timezoneDetected: 'Fus orar detectat',
+      timezoneHint: 'Exportul ICS folosește fusul orar detectat din browser sau sistemul de operare.',
       monthlyPrice: 'Abonament lunar (lei)',
       weekdays: 'Zile eligibile pentru antrenament',
       excludedTitle: 'Intervale excluse',
-      excludedHint: 'Sunt pre\u00EEnc\u0103rcate perioadele implicite pentru Pa\u0219tele ortodox 2026, Cr\u0103ciun 2026 \u0219i Anul Nou 2026-2027. Le po\u021Bi edita direct aici.',
-      addInterval: 'Adaug\u0103 interval',
+      excludedHint: 'Sunt preîncărcate perioadele implicite pentru Paștele ortodox 2026, Crăciun 2026 și Anul Nou 2026-2027. Le poți edita direct aici.',
+      addInterval: 'Adaugă interval',
       excludedRange: 'Interval exclus',
       from: 'De la',
-      to: 'P\u00E2n\u0103 la',
-      remove: '\u0218terge',
-      intervalIncomplete: 'Intervalul este ignorat p\u00E2n\u0103 completezi ambele date.',
-      intervalInvalid: 'Data de final trebuie s\u0103 fie aceea\u0219i sau dup\u0103 data de start.',
-      noExclusions: 'Nu exist\u0103 intervale excluse. Po\u021Bi ad\u0103uga unul nou.',
+      to: 'Până la',
+      remove: 'Șterge',
+      intervalIncomplete: 'Intervalul este ignorat până completezi ambele date.',
+      intervalInvalid: 'Data de final trebuie să fie aceeași sau după data de start.',
+      noExclusions: 'Nu există intervale excluse. Poți adăuga unul nou.',
       summaryTitle: 'Rezumat',
       annualTotal: 'Total anual',
-      eligibleSessions: '\u0218edin\u021Be eligibile',
-      costPerSession: 'Cost / \u0219edin\u021B\u0103',
+      eligibleSessions: 'Ședințe eligibile',
+      costPerSession: 'Cost / ședință',
       cycleRange: 'Ciclu activ',
-      remainingSessions: '\u0218edin\u021Be r\u0103mase din azi',
-      excludedPotentialSessions: '\u0218edin\u021Be eliminate de intervale',
-      plainLanguageTitle: 'Explica\u021Bie pe \u00EEn\u021Beles',
-      actionsTitle: 'Export \u0219i distribuire',
-      copyShareLink: 'Copiaz\u0103 link-ul sesiunii',
+      remainingSessions: 'Ședințe rămase din azi',
+      excludedPotentialSessions: 'Ședințe eliminate de intervale',
+      plainLanguageTitle: 'Explicație pe înțeles',
+      actionsTitle: 'Export și distribuire',
+      copyShareLink: 'Copiază link-ul sesiunii',
       exportCsv: 'Export CSV',
       exportIcs: 'Export ICS',
-      shareHint: 'Link-ul copiat include data de start, pre\u021Bul, zilele \u0219i intervalele excluse. Limba r\u0103m\u00E2ne local\u0103 pe fiecare dispozitiv.',
-      offlineHint: 'Instaleaz\u0103 aplica\u021Bia ca PWA pentru utilizare offline dup\u0103 prima \u00EEnc\u0103rcare.',
-      paymentTitle: 'Program pl\u0103\u021Bi',
-      paymentHint: 'Plata 1 este avans la data de start. Pl\u0103\u021Bile urm\u0103toare cad pe prima \u0219edin\u021B\u0103 eligibil\u0103 care atinge pragul cumulat.',
+      shareHint: 'Link-ul copiat include data de start, ora ședinței, prețul, zilele și intervalele excluse. Limba rămâne locală pe fiecare dispozitiv.',
+      icsHint: 'Exportul ICS include toate ședințele eligibile ca evenimente de 60 de minute la ora selectată, în fusul orar detectat, plus scadențele de plată cu prefix vizibil.',
+      offlineHint: 'Instalează aplicația ca PWA pentru utilizare offline după prima încărcare.',
+      paymentTitle: 'Program plăți',
+      paymentHint: 'Plata 1 este avans la data de start. Plățile următoare cad pe prima ședință eligibilă care atinge pragul cumulat.',
       paymentNo: 'Plata',
-      paymentDate: 'Data pl\u0103\u021Bii',
+      paymentDate: 'Data plății',
       paymentThreshold: 'Prag cumulat',
-      monthSessionCount: '\u0218edin\u021Be eligibile \u00EEn lun\u0103',
-      coverageDate: 'Acoper\u0103 p\u00E2n\u0103 la',
-      refreshForUpdate: 'Re\u00EEnc\u0103rcare pentru actualizare',
-      offlineBanner: 'E\u0219ti offline. Interfa\u021Ba din cache \u0219i ultima stare local\u0103 r\u0103m\u00E2n disponibile.',
-      updateReady: 'Este disponibil\u0103 o versiune nou\u0103 a aplica\u021Biei.',
+      referenceMonth: 'Luna de referință',
+      monthSessionCount: 'Ședințe eligibile în lună',
+      coverageDate: 'Acoperă până la',
+      refreshForUpdate: 'Reîncarcă pentru actualizare',
+      offlineBanner: 'Ești offline. Interfața din cache și ultima stare locală rămân disponibile.',
+      updateReady: 'Este disponibilă o versiune nouă a aplicației.',
       calendarHint: 'Tabelul include doar zilele din ciclul activ de 12 luni.',
       date: 'Data',
       weekday: 'Zi',
-      weekdayEnabled: 'Zi selectat\u0103',
+      weekdayEnabled: 'Zi selectată',
       excludedColumn: 'Interval exclus',
-      eligible: '\u0218edin\u021B\u0103 eligibil\u0103',
-      sessionNumber: 'Nr. \u0219edin\u021B\u0103',
-      sessionValue: 'Valoare \u0219edin\u021B\u0103',
+      eligible: 'Ședință eligibilă',
+      sessionNumber: 'Nr. ședință',
+      sessionValue: 'Valoare ședință',
       accumulated: 'Consum cumulat',
       yes: 'Da',
       no: 'Nu',
-      none: '\u2014',
-      dueBadge: 'Scaden\u021B\u0103',
+      none: '—',
+      dueBadge: 'Scadență',
       linkCopied: 'Link-ul a fost copiat.',
-      linkCopyFailed: 'Nu am putut copia automat link-ul. Copiaz\u0103-l manual din bara de adrese.',
-      loadedFromLink: 'Configura\u021Bia din link a fost aplicat\u0103.',
-      priceRequired: 'Introdu un pre\u021B lunar mai mare dec\u00E2t 0 pentru a genera programul de pl\u0103\u021Bi.',
-      noEligibleSessionsNote: 'Nu exist\u0103 \u0219edin\u021Be eligibile cu selec\u021Bia curent\u0103 de zile \u0219i intervale.',
+      linkCopyFailed: 'Nu am putut copia automat link-ul. Copiază-l manual din bara de adrese.',
+      loadedFromLink: 'Configurația din link a fost aplicată.',
+      priceRequired: 'Introdu un preț lunar mai mare decât 0 pentru a genera programul de plăți.',
+      noEligibleSessionsNote: 'Nu există ședințe eligibile cu selecția curentă de zile și intervale.',
+      noCalendarEventsNote: 'Nu există evenimente eligibile pentru exportul ICS.',
+      icsShared: 'Fișierul ICS a fost trimis către foaia de partajare nativă.',
+      icsDownloadStarted: 'Fișierul ICS a fost generat.',
       weekdayShort: {
         1: 'L',
         2: 'Ma',
@@ -76,32 +87,39 @@
       },
       weekdayLong: {
         1: 'Luni',
-        2: 'Mar\u021Bi',
+        2: 'Marți',
         3: 'Miercuri',
         4: 'Joi',
         5: 'Vineri',
-        6: 'S\u00E2mb\u0103t\u0103',
-        0: 'Duminic\u0103'
+        6: 'Sâmbătă',
+        0: 'Duminică'
       },
-      calendarSummary: ({ count }) => `Baza calendaristic\u0103: ${count} zile din ciclul de 12 luni`,
-      noteAnnual: ({ annual, monthly }) => `Totalul anual r\u0103m\u00E2ne fix la ${annual} (${monthly} x 12).`,
-      noteEligible: ({ count, removed }) => `\u00CEn ciclul curent exist\u0103 ${count} \u0219edin\u021Be eligibile, iar intervalele excluse elimin\u0103 ${removed} zile care altfel ar fi fost eligibile.`,
-      noteCost: ({ annual, count, cost }) => `Costul pe \u0219edin\u021B\u0103 devine ${cost} pentru c\u0103 formula este ${annual} / ${count}.`,
-      notePayments: 'Plata 1 r\u0103m\u00E2ne la data de start. Dup\u0103 aceea, fiecare scaden\u021B\u0103 cade pe prima \u0219edin\u021B\u0103 eligibil\u0103 care atinge pragul cumulat urm\u0103tor.',
+      calendarSummary: ({ count }) => `Baza calendaristică: ${count} zile din ciclul de 12 luni`,
+      noteAnnual: ({ annual, monthly }) => `Totalul anual rămâne fix la ${annual} (${monthly} x 12).`,
+      noteEligible: ({ count, removed }) => `În ciclul curent există ${count} ședințe eligibile, iar intervalele excluse elimină ${removed} zile care altfel ar fi fost eligibile.`,
+      noteCost: ({ annual, count, cost }) => `Costul pe ședință devine ${cost} pentru că formula este ${annual} / ${count}.`,
+      notePayments: 'Plata 1 rămâne la data de start. După aceea, fiecare scadență cade pe prima ședință eligibilă care atinge pragul cumulat următor.',
       noteFinalCoverage: ({ date }) => `Ultimul prag anual este consumat la data de ${date}.`,
-      noteRemaining: ({ count }) => `De azi \u00EEnainte mai r\u0103m\u00E2n ${count} \u0219edin\u021Be eligibile \u00EEn acest ciclu.`,
-      noteInvalidIntervals: ({ count }) => `${count} interval(e) invalide sunt ignorate p\u00E2n\u0103 le corectezi.`,
-      noteNextPayment: ({ number, date, threshold }) => `Urm\u0103toarea scaden\u021B\u0103 este plata ${number} la data de ${date}, la pragul ${threshold}.`,
-      nextDeadlineBadge: ({ number, date }) => `Urm\u0103toarea scaden\u021B\u0103: plata ${number} - ${date}`,
-      noUpcomingDeadline: 'Nu mai exist\u0103 scaden\u021Be viitoare \u00EEn acest ciclu.',
-      icsSummary: ({ number }) => `Scaden\u021B\u0103 abonament sal\u0103 #${number}`,
-      icsDescription: ({ threshold, coverage, month }) => `Prag cumulat: ${threshold}. Luna de referin\u021B\u0103: ${month}. Acoper\u0103 p\u00E2n\u0103 la: ${coverage}.`
+      noteRemaining: ({ count }) => `De azi înainte mai rămân ${count} ședințe eligibile în acest ciclu.`,
+      noteInvalidIntervals: ({ count }) => `${count} interval(e) invalide sunt ignorate până le corectezi.`,
+      noteNextPayment: ({ number, date, threshold }) => `Următoarea scadență este plata ${number} la data de ${date}, la pragul ${threshold}.`,
+      noteSessionExport: ({ time, timeZone }) => `Exportul ICS include ședințele eligibile la ora ${time}, în fusul orar ${timeZone}.`,
+      nextDeadlineBadge: ({ number, date }) => `Următoarea scadență: plata ${number} - ${date}`,
+      noUpcomingDeadline: 'Nu mai există scadențe viitoare în acest ciclu.',
+      icsCalendarName: 'Calendar abonament sală',
+      icsPaymentSummary: ({ number }) => `[PLATĂ] Scadență abonament #${number}`,
+      icsPaymentDescription: ({ threshold, coverage, month }) => `Prag cumulat: ${threshold}. Luna de referință: ${month}. Acoperă până la: ${coverage}.`,
+      icsGymSummary: ({ number }) => `[SALĂ] Ședință eligibilă #${number}`,
+      icsGymDescription: ({ time, timeZone, sessionValue, accumulated }) => `Ora ședinței: ${time}. Fus orar: ${timeZone}. Valoare ședință: ${sessionValue}. Consum cumulat: ${accumulated}.`
     },
     en: {
       title: 'Gym subscription calculator',
       subtitle: 'The annual total stays fixed while the cost per session recalculates automatically from the eligible sessions in the 12-month cycle.',
       configTitle: 'Setup',
       startDate: 'Start date',
+      sessionTime: 'Session hour',
+      timezoneDetected: 'Detected time zone',
+      timezoneHint: 'ICS export uses the time zone detected from the browser or operating system.',
       monthlyPrice: 'Monthly subscription (lei)',
       weekdays: 'Eligible training weekdays',
       excludedTitle: 'Excluded ranges',
@@ -126,13 +144,15 @@
       copyShareLink: 'Copy share link',
       exportCsv: 'Export CSV',
       exportIcs: 'Export ICS',
-      shareHint: 'The copied link includes the start date, price, weekdays, and excluded ranges. Language stays local on each device.',
+      shareHint: 'The copied link includes the start date, session hour, price, weekdays, and excluded ranges. Language stays local on each device.',
+      icsHint: 'ICS export includes all eligible gym sessions as 60-minute events at the selected hour, in the detected time zone, plus payment deadlines with a clear prefix.',
       offlineHint: 'Install the app as a PWA to use it offline after the first load.',
       paymentTitle: 'Payment schedule',
       paymentHint: 'Payment 1 is the advance payment on the start date. Later payments land on the first eligible session that reaches the cumulative threshold.',
       paymentNo: 'Payment',
       paymentDate: 'Payment date',
       paymentThreshold: 'Cumulative threshold',
+      referenceMonth: 'Reference month',
       monthSessionCount: 'Eligible sessions in month',
       coverageDate: 'Covers until',
       refreshForUpdate: 'Reload to update',
@@ -149,13 +169,16 @@
       accumulated: 'Accumulated value',
       yes: 'Yes',
       no: 'No',
-      none: '\u2014',
+      none: '—',
       dueBadge: 'Due',
       linkCopied: 'The share link was copied.',
       linkCopyFailed: 'Automatic copy failed. Please copy the current address manually.',
       loadedFromLink: 'The shared configuration has been applied.',
       priceRequired: 'Enter a monthly price above 0 to generate the payment schedule.',
       noEligibleSessionsNote: 'There are no eligible sessions with the current weekday selection and excluded ranges.',
+      noCalendarEventsNote: 'There are no eligible events to export to ICS.',
+      icsShared: 'The ICS file was handed to the native share sheet.',
+      icsDownloadStarted: 'The ICS file was generated.',
       weekdayShort: {
         1: 'Mon',
         2: 'Tue',
@@ -183,10 +206,14 @@
       noteRemaining: ({ count }) => `From today onward, ${count} eligible sessions remain in this cycle.`,
       noteInvalidIntervals: ({ count }) => `${count} invalid range(s) are ignored until you fix them.`,
       noteNextPayment: ({ number, date, threshold }) => `The next due date is payment ${number} on ${date}, at the threshold ${threshold}.`,
+      noteSessionExport: ({ time, timeZone }) => `ICS export includes eligible gym sessions at ${time}, in the ${timeZone} time zone.`,
       nextDeadlineBadge: ({ number, date }) => `Next due date: payment ${number} - ${date}`,
       noUpcomingDeadline: 'There are no future due dates left in this cycle.',
-      icsSummary: ({ number }) => `Gym subscription due date #${number}`,
-      icsDescription: ({ threshold, coverage, month }) => `Cumulative threshold: ${threshold}. Reference month: ${month}. Covers until: ${coverage}.`
+      icsCalendarName: 'Gym subscription calendar',
+      icsPaymentSummary: ({ number }) => `[PAYMENT] Gym subscription due #${number}`,
+      icsPaymentDescription: ({ threshold, coverage, month }) => `Cumulative threshold: ${threshold}. Reference month: ${month}. Covers until: ${coverage}.`,
+      icsGymSummary: ({ number }) => `[GYM] Eligible session #${number}`,
+      icsGymDescription: ({ time, timeZone, sessionValue, accumulated }) => `Session time: ${time}. Time zone: ${timeZone}. Session value: ${sessionValue}. Accumulated value: ${accumulated}.`
     }
   };
 
@@ -196,19 +223,22 @@
 
   const DEFAULT_STATE = {
     startDate: '2026-01-05',
+    sessionTime: DEFAULT_SESSION_TIME,
     monthlyPrice: 300,
     weekdays: [1, 3, 5],
     exclusions: [
-      { id: makeId(), start: '2026-04-05', end: '2026-04-11' },
-      { id: makeId(), start: '2026-12-18', end: '2026-12-24' },
-      { id: makeId(), start: '2026-12-29', end: '2027-01-03' }
+      { id: makeId(), start: '2026-04-10', end: '2026-04-13' },
+      { id: makeId(), start: '2026-12-23', end: '2026-12-25' },
+      { id: makeId(), start: '2026-12-28', end: '2026-12-31' }
     ],
     language: 'ro'
   };
 
   const refs = {
     startDateInput: document.getElementById('startDateInput'),
+    sessionTimeInput: document.getElementById('sessionTimeInput'),
     monthlyPriceInput: document.getElementById('monthlyPriceInput'),
+    timezoneDisplay: document.getElementById('timezoneDisplay'),
     weekdaySelector: document.getElementById('weekdaySelector'),
     exclusionList: document.getElementById('exclusionList'),
     addExclusionBtn: document.getElementById('addExclusionBtn'),
@@ -260,7 +290,12 @@
 
   function bindEvents() {
     refs.startDateInput.addEventListener('input', () => {
-      state.startDate = refs.startDateInput.value || DEFAULT_STATE.startDate;
+      state.startDate = isIsoDate(refs.startDateInput.value) ? refs.startDateInput.value : DEFAULT_STATE.startDate;
+      commitState();
+    });
+
+    refs.sessionTimeInput.addEventListener('input', () => {
+      state.sessionTime = normalizeTimeValue(refs.sessionTimeInput.value, state.sessionTime);
       commitState();
     });
 
@@ -378,8 +413,17 @@
 
   function readStoredState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
+      const current = localStorage.getItem(STORAGE_KEY);
+      if (current) {
+        return JSON.parse(current);
+      }
+      for (const legacyKey of LEGACY_STORAGE_KEYS) {
+        const legacy = localStorage.getItem(legacyKey);
+        if (legacy) {
+          return JSON.parse(legacy);
+        }
+      }
+      return null;
     } catch (error) {
       console.warn('Could not read local storage state', error);
       return null;
@@ -395,30 +439,41 @@
   }
 
   function mergeState(base, patch) {
-    const result = {
-      startDate: isIsoDate(patch.startDate) ? patch.startDate : base.startDate,
-      monthlyPrice: Number.isFinite(Number(patch.monthlyPrice)) ? Number(patch.monthlyPrice) : base.monthlyPrice,
-      weekdays: Array.isArray(patch.weekdays) ? normalizeWeekdayList(patch.weekdays) : normalizeWeekdayList(base.weekdays),
-      exclusions: Array.isArray(patch.exclusions)
+    return {
+      startDate: isIsoDate(patch && patch.startDate) ? patch.startDate : base.startDate,
+      sessionTime: normalizeTimeValue(patch && patch.sessionTime, base.sessionTime),
+      monthlyPrice: Number.isFinite(Number(patch && patch.monthlyPrice)) ? Number(patch.monthlyPrice) : base.monthlyPrice,
+      weekdays: Array.isArray(patch && patch.weekdays) ? normalizeWeekdayList(patch.weekdays) : normalizeWeekdayList(base.weekdays),
+      exclusions: Array.isArray(patch && patch.exclusions)
         ? patch.exclusions.map(normalizeExclusion)
         : base.exclusions.map(normalizeExclusion),
-      language: patch.language === 'en' || patch.language === 'ro' ? patch.language : base.language
+      language: patch && (patch.language === 'en' || patch.language === 'ro') ? patch.language : base.language
     };
-    return result;
   }
 
   function normalizeExclusion(item) {
-    const normalized = {
+    return {
       id: item && typeof item.id === 'string' ? item.id : makeId(),
       start: item && isIsoDate(item.start) ? item.start : '',
       end: item && isIsoDate(item.end) ? item.end : ''
     };
-    return normalized;
   }
 
   function normalizeWeekdayList(list) {
     const set = new Set((list || []).map((value) => Number(value)));
     return WEEKDAY_ORDER.filter((day) => set.has(day));
+  }
+
+  function normalizeTimeValue(value, fallback = DEFAULT_SESSION_TIME) {
+    return isTimeValue(value) ? value : fallback;
+  }
+
+  function isTimeValue(value) {
+    if (typeof value !== 'string' || !/^\d{2}:\d{2}$/.test(value)) {
+      return false;
+    }
+    const [hour, minute] = value.split(':').map(Number);
+    return hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59;
   }
 
   function locale() {
@@ -444,7 +499,9 @@
     renderStaticTranslations();
     renderLanguageButtons();
     refs.startDateInput.value = state.startDate;
+    refs.sessionTimeInput.value = state.sessionTime;
     refs.monthlyPriceInput.value = String(state.monthlyPrice ?? 0);
+    refs.timezoneDisplay.value = getDetectedTimeZone();
     renderWeekdaySelector();
     renderExclusions();
     currentData = calculateState(state);
@@ -453,7 +510,7 @@
     renderPaymentTable(currentData);
     renderCalendarTable(currentData);
     refs.exportCsvBtn.disabled = currentData.payments.length === 0;
-    refs.exportIcsBtn.disabled = currentData.payments.length === 0;
+    refs.exportIcsBtn.disabled = currentData.payments.length === 0 && currentData.rows.every((row) => !row.eligible);
     renderStatus();
   }
 
@@ -606,18 +663,15 @@
       });
     }
 
-    const payments = thresholds.map((item, index) => {
-      const paymentDate =
-        index === 0
-          ? validStart
-          : thresholds[index - 1]?.consumedOn || '';
-
+    const payments = thresholds.map((item) => {
+      const paymentDate = item.number === 1 ? validStart : item.consumedOn;
       const monthKey = paymentDate ? paymentDate.slice(0, 7) : '';
-
       return {
         number: item.number,
         paymentDate,
         threshold: item.threshold,
+        referenceMonthKey: monthKey,
+        referenceMonthLabel: monthKey ? formatMonthLabel(monthKey, currentState.language) : tWithLanguage(currentState.language, 'none'),
         monthSessionCount: monthKey ? (monthCounts[monthKey] || 0) : '',
         coverageDate: item.consumedOn
       };
@@ -681,6 +735,10 @@
           notes.push(t('noteFinalCoverage', { date: formatDateLabel(data.payments[data.payments.length - 1].coverageDate) }));
         }
       }
+      notes.push(t('noteSessionExport', {
+        time: formatTimeLabel(state.sessionTime),
+        timeZone: getDetectedTimeZone()
+      }));
     } else {
       notes.push(t('noEligibleSessionsNote'));
     }
@@ -722,9 +780,10 @@
         <tr class="${highlight ? 'highlight-row' : ''}">
           <td><span class="status-chip">${payment.number}</span>${highlight ? `<span class="row-badge">${escapeHtml(t('dueBadge'))}</span>` : ''}</td>
           <td class="mono">${payment.paymentDate ? escapeHtml(formatDateLabel(payment.paymentDate)) : escapeHtml(t('none'))}</td>
-          <td class="mono">${payment.coverageDate ? escapeHtml(formatDateLabel(payment.coverageDate)) : escapeHtml(t('none'))}</td>
           <td class="mono">${escapeHtml(formatMoney(payment.threshold))}</td>
+          <td>${payment.paymentDate ? escapeHtml(payment.referenceMonthLabel) : escapeHtml(t('none'))}</td>
           <td>${escapeHtml(monthCount)}</td>
+          <td class="mono">${payment.coverageDate ? escapeHtml(formatDateLabel(payment.coverageDate)) : escapeHtml(t('none'))}</td>
         </tr>
       `;
     }).join('');
@@ -732,20 +791,18 @@
 
   function renderCalendarTable(data) {
     refs.calendarSummaryLine.textContent = t('calendarSummary', { count: formatCount(data.rows.length) });
-    refs.calendarTableBody.innerHTML = data.rows.map((row) => {
-      return `
-        <tr>
-          <td class="mono">${escapeHtml(formatDateLabel(row.iso))}</td>
-          <td>${escapeHtml(locale().weekdayLong[row.weekdayIndex])}</td>
-          <td>${statusChip(row.weekdayEnabled)}</td>
-          <td>${escapeHtml(row.excludedReason || t('none'))}</td>
-          <td>${statusChip(row.eligible)}</td>
-          <td>${row.sessionNumber ? `<span class="mono">${escapeHtml(String(row.sessionNumber))}</span>` : escapeHtml(t('none'))}</td>
-          <td>${row.sessionValue ? `<span class="mono">${escapeHtml(formatMoney(row.sessionValue))}</span>` : escapeHtml(t('none'))}</td>
-          <td>${row.accumulated ? `<span class="mono">${escapeHtml(formatMoney(row.accumulated))}</span>` : escapeHtml(t('none'))}</td>
-        </tr>
-      `;
-    }).join('');
+    refs.calendarTableBody.innerHTML = data.rows.map((row) => `
+      <tr>
+        <td class="mono">${escapeHtml(formatDateLabel(row.iso))}</td>
+        <td>${escapeHtml(locale().weekdayLong[row.weekdayIndex])}</td>
+        <td>${statusChip(row.weekdayEnabled)}</td>
+        <td>${escapeHtml(row.excludedReason || t('none'))}</td>
+        <td>${statusChip(row.eligible)}</td>
+        <td>${row.sessionNumber ? `<span class="mono">${escapeHtml(String(row.sessionNumber))}</span>` : escapeHtml(t('none'))}</td>
+        <td>${row.sessionValue ? `<span class="mono">${escapeHtml(formatMoney(row.sessionValue))}</span>` : escapeHtml(t('none'))}</td>
+        <td>${row.accumulated ? `<span class="mono">${escapeHtml(formatMoney(row.accumulated))}</span>` : escapeHtml(t('none'))}</td>
+      </tr>
+    `).join('');
   }
 
   function renderStatus() {
@@ -760,6 +817,7 @@
   function buildSharePayload() {
     return {
       s: state.startDate,
+      h: state.sessionTime,
       p: Number(state.monthlyPrice) || 0,
       w: normalizeWeekdayList(state.weekdays),
       x: state.exclusions.filter((item) => item.start || item.end).map((item) => [item.start || '', item.end || ''])
@@ -783,6 +841,7 @@
       const parsed = JSON.parse(decoded);
       return {
         startDate: isIsoDate(parsed.s) ? parsed.s : DEFAULT_STATE.startDate,
+        sessionTime: isTimeValue(parsed.h) ? parsed.h : DEFAULT_STATE.sessionTime,
         monthlyPrice: Number.isFinite(Number(parsed.p)) ? Number(parsed.p) : DEFAULT_STATE.monthlyPrice,
         weekdays: Array.isArray(parsed.w) ? normalizeWeekdayList(parsed.w) : DEFAULT_STATE.weekdays,
         exclusions: Array.isArray(parsed.x)
@@ -833,54 +892,66 @@
       return;
     }
     const rows = [
-      [t('paymentNo'), t('paymentDate'), t('coverageDate'), t('paymentThreshold'), t('monthSessionCount')],
+      [t('paymentNo'), t('paymentDate'), t('paymentThreshold'), t('referenceMonth'), t('monthSessionCount'), t('coverageDate')],
       ...currentData.payments.map((payment) => [
         payment.number,
         payment.paymentDate || '',
-        payment.coverageDate || '',
         payment.threshold.toFixed(2),
-        payment.monthSessionCount === '' ? '' : String(payment.monthSessionCount)
+        payment.paymentDate ? payment.referenceMonthLabel : '',
+        payment.monthSessionCount === '' ? '' : String(payment.monthSessionCount),
+        payment.coverageDate || ''
       ])
     ];
     const csv = rows.map((row) => row.map(csvEscape).join(',')).join('\r\n');
-    const csvWithBom = '\uFEFF' + csv;
-    downloadFile(csvWithBom, `gym-subscription-schedule-${currentData.validStart}.csv`, 'text/csv;charset=utf-8');
+    downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `gym-subscription-schedule-${currentData.validStart}.csv`);
   }
 
-  function exportIcs() {
-    if (!currentData || !currentData.payments.length) {
-      showToast(t('priceRequired'));
+  async function exportIcs() {
+    if (!currentData) {
+      showToast(t('noCalendarEventsNote'));
       return;
     }
 
-    const datedPayments = currentData.payments.filter((payment) => payment.paymentDate);
+    const payments = currentData.payments.filter((payment) => payment.paymentDate);
+    const sessions = currentData.rows.filter((row) => row.eligible);
+    if (!payments.length && !sessions.length) {
+      showToast(t('noCalendarEventsNote'));
+      return;
+    }
+
+    const timeZone = getDetectedTimeZone();
     const dtStamp = formatUtcStamp(new Date());
     const lines = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
       'PRODID:-//OpenAI//Gym Subscription Calculator//EN',
       'CALSCALE:GREGORIAN',
-      'METHOD:PUBLISH'
+      'METHOD:PUBLISH',
+      `X-WR-CALNAME:${escapeIcsText(t('icsCalendarName'))}`,
+      `X-WR-TIMEZONE:${escapeIcsText(timeZone)}`
     ];
 
-    datedPayments.forEach((payment) => {
+    payments.forEach((payment) => {
       const start = parseIsoDate(payment.paymentDate);
       const end = addDays(start, 1);
-      const summary = t('icsSummary', { number: payment.number });
-      const description = t('icsDescription', {
+      const summary = t('icsPaymentSummary', { number: payment.number });
+      const description = t('icsPaymentDescription', {
         threshold: formatMoney(payment.threshold),
         coverage: payment.coverageDate ? formatDateLabel(payment.coverageDate) : t('none'),
+        month: payment.paymentDate ? payment.referenceMonthLabel : t('none')
       });
 
       lines.push('BEGIN:VEVENT');
-      lines.push(`UID:${payment.number}-${payment.paymentDate}@gym-subscription-pwa`);
+      lines.push(`UID:payment-${payment.number}-${payment.paymentDate}@gym-subscription-pwa`);
       lines.push(`DTSTAMP:${dtStamp}`);
       lines.push(`DTSTART;VALUE=DATE:${toIcsDate(payment.paymentDate)}`);
       lines.push(`DTEND;VALUE=DATE:${toIcsDate(formatIsoDate(end))}`);
       lines.push(`SUMMARY:${escapeIcsText(summary)}`);
       lines.push(`DESCRIPTION:${escapeIcsText(description)}`);
+      lines.push('CATEGORIES:PAYMENT');
+      lines.push('COLOR:tomato');
       lines.push('STATUS:CONFIRMED');
-      lines.push('TRANSP:OPAQUE');
+      lines.push('TRANSP:TRANSPARENT');
       lines.push('BEGIN:VALARM');
       lines.push('ACTION:DISPLAY');
       lines.push(`DESCRIPTION:${escapeIcsText(summary)}`);
@@ -889,10 +960,76 @@
       lines.push('END:VEVENT');
     });
 
+    sessions.forEach((row) => {
+      const summary = t('icsGymSummary', { number: row.sessionNumber });
+      const description = t('icsGymDescription', {
+        time: formatTimeLabel(state.sessionTime),
+        timeZone,
+        sessionValue: row.sessionValue ? formatMoney(row.sessionValue) : t('none'),
+        accumulated: row.accumulated ? formatMoney(row.accumulated) : t('none')
+      });
+      const range = buildFloatingEventRange(row.iso, state.sessionTime, SESSION_DURATION_MINUTES);
+
+      lines.push('BEGIN:VEVENT');
+      lines.push(`UID:gym-${row.iso}-${state.sessionTime}-${row.sessionNumber}@gym-subscription-pwa`);
+      lines.push(`DTSTAMP:${dtStamp}`);
+      lines.push(`DTSTART:${range.start}`);
+      lines.push(`DTEND:${range.end}`);
+      lines.push(`SUMMARY:${escapeIcsText(summary)}`);
+      lines.push(`DESCRIPTION:${escapeIcsText(description)}`);
+      lines.push('CATEGORIES:GYM SESSION');
+      lines.push('COLOR:steelblue');
+      lines.push('STATUS:CONFIRMED');
+      lines.push('TRANSP:OPAQUE');
+      lines.push('END:VEVENT');
+    });
+
     lines.push('END:VCALENDAR');
 
     const content = lines.map(foldIcsLine).join('\r\n') + '\r\n';
-    downloadFile(content, `gym-subscription-deadlines-${currentData.validStart}.ics`, 'text/calendar;charset=utf-8');
+    const filename = `gym-subscription-calendar-${currentData.validStart}.ics`;
+    await shareOrDownloadCalendarFile(content, filename);
+  }
+
+  function buildFloatingEventRange(isoDate, timeValue, durationMinutes) {
+    const [year, month, day] = isoDate.split('-').map(Number);
+    const [hour, minute] = timeValue.split(':').map(Number);
+    const start = new Date(year, month - 1, day, hour, minute, 0, 0);
+    const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
+    return {
+      start: formatLocalIcsDateTime(start),
+      end: formatLocalIcsDateTime(end)
+    };
+  }
+
+  async function shareOrDownloadCalendarFile(content, filename) {
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function' && typeof navigator.canShare === 'function' && typeof File === 'function') {
+      const shareCandidates = [
+        new File([content], filename, { type: 'text/calendar' }),
+        new File([content], filename, { type: 'text/plain' })
+      ];
+      for (const file of shareCandidates) {
+        try {
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: filename
+            });
+            showToast(t('icsShared'));
+            return;
+          }
+        } catch (error) {
+          if (error && error.name === 'AbortError') {
+            return;
+          }
+          console.warn('Native share failed', error);
+        }
+      }
+    }
+
+    const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+    downloadBlob(blob, filename);
+    showToast(t('icsDownloadStarted'));
   }
 
   function csvEscape(value) {
@@ -909,35 +1046,52 @@
   }
 
   function foldIcsLine(line) {
-    const chunkSize = 73;
-    if (line.length <= chunkSize) {
+    const encoder = new TextEncoder();
+    if (encoder.encode(line).length <= 75) {
       return line;
     }
-    const parts = [];
-    let remaining = line;
-    while (remaining.length > chunkSize) {
-      parts.push(remaining.slice(0, chunkSize));
-      remaining = ` ${remaining.slice(chunkSize)}`;
+
+    const chunks = [];
+    let current = '';
+
+    for (const char of line) {
+      const candidate = current + char;
+      if (encoder.encode(candidate).length > 75) {
+        chunks.push(current);
+        current = ` ${char}`;
+      } else {
+        current = candidate;
+      }
     }
-    parts.push(remaining);
-    return parts.join('\r\n');
+
+    if (current) {
+      chunks.push(current);
+    }
+
+    return chunks.join('\r\n');
   }
 
-  function downloadFile(content, filename, mimeType) {
-    const needsBom = mimeType.startsWith('text/csv');
-    const blob = new Blob(
-      needsBom ? ['\uFEFF', content] : [content],
-      { type: mimeType }
-    );
-
+  function downloadBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
+    const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    if (isAppleMobile) {
+      const popup = window.open(url, '_blank', 'noopener');
+      if (!popup) {
+        window.location.href = url;
+      }
+      window.setTimeout(() => URL.revokeObjectURL(url), 30 * 1000);
+      return;
+    }
+
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
+    link.rel = 'noopener';
     document.body.appendChild(link);
     link.click();
     link.remove();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 5000);
   }
 
   async function registerServiceWorker() {
@@ -1052,6 +1206,18 @@
     }).format(date);
   }
 
+  function formatTimeLabel(timeValue) {
+    if (!isTimeValue(timeValue)) {
+      return t('none');
+    }
+    const [hour, minute] = timeValue.split(':').map(Number);
+    const sample = new Date(2000, 0, 1, hour, minute, 0, 0);
+    return new Intl.DateTimeFormat(state.language === 'en' ? 'en-US' : 'ro-RO', {
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(sample);
+  }
+
   function formatMonthLabel(monthKey, language) {
     const [year, month] = monthKey.split('-').map(Number);
     const date = new Date(Date.UTC(year, month - 1, 1));
@@ -1074,6 +1240,19 @@
     const minute = pad(date.getUTCMinutes());
     const second = pad(date.getUTCSeconds());
     return `${year}${month}${day}T${hour}${minute}${second}Z`;
+  }
+
+  function formatLocalIcsDateTime(date) {
+    return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+  }
+
+  function getDetectedTimeZone() {
+    try {
+      const resolved = new Intl.DateTimeFormat().resolvedOptions();
+      return resolved && resolved.timeZone ? resolved.timeZone : 'UTC';
+    } catch (error) {
+      return 'UTC';
+    }
   }
 
   function pad(value) {

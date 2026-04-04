@@ -40,16 +40,30 @@
           <div class="card-header">
             <h2 data-i18n="configTitle"></h2>
           </div>
+
           <div class="field-grid">
             <label class="field">
               <span data-i18n="startDate"></span>
               <input id="startDateInput" type="date" required>
             </label>
+
+            <label class="field">
+              <span data-i18n="sessionTime"></span>
+              <input id="sessionTimeInput" type="time" step="900" required>
+            </label>
+
             <label class="field">
               <span data-i18n="monthlyPrice"></span>
               <input id="monthlyPriceInput" type="number" min="0" step="0.01" inputmode="decimal" required>
             </label>
+
+            <label class="field field-readonly">
+              <span data-i18n="timezoneDetected"></span>
+              <input id="timezoneDisplay" type="text" readonly>
+              <small class="field-note" data-i18n="timezoneHint"></small>
+            </label>
           </div>
+
           <div class="field-block">
             <div class="field-label" data-i18n="weekdays"></div>
             <div id="weekdaySelector" class="weekday-selector"></div>
@@ -118,6 +132,7 @@
             <button id="exportIcsBtn" type="button" class="secondary-btn" data-i18n="exportIcs"></button>
           </div>
           <p class="muted" data-i18n="shareHint"></p>
+          <p class="muted" data-i18n="icsHint"></p>
           <p class="muted" data-i18n="offlineHint"></p>
         </section>
       </div>
@@ -136,9 +151,10 @@
               <tr>
                 <th data-i18n="paymentNo"></th>
                 <th data-i18n="paymentDate"></th>
-                <th data-i18n="coverageDate"></th>
                 <th data-i18n="paymentThreshold"></th>
+                <th data-i18n="referenceMonth"></th>
                 <th data-i18n="monthSessionCount"></th>
+                <th data-i18n="coverageDate"></th>
               </tr>
             </thead>
             <tbody id="paymentTableBody"></tbody>
