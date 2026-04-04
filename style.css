@@ -141,8 +141,25 @@ input:focus {
 }
 
 .topbar-actions {
-  display: flex;
-  justify-content: flex-start;
+  display: grid;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.quick-actions .primary-btn,
+.quick-actions .secondary-btn {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0.55rem;
+  font-size: 0.92rem;
+  line-height: 1.2;
 }
 
 .muted {
@@ -456,6 +473,28 @@ tbody tr:last-child td {
   color: var(--muted);
 }
 
+.site-footer {
+  margin-top: 0.9rem;
+  padding: 0.4rem 0.25rem 0.1rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.site-footer a {
+  color: var(--accent-strong);
+  font-weight: 600;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
 details summary {
   cursor: pointer;
   font-weight: 700;
@@ -475,6 +514,28 @@ details[open] summary {
     flex-direction: row;
     align-items: flex-start;
     justify-content: space-between;
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    width: auto;
+  }
+
+  .quick-actions {
+    display: flex;
+    width: auto;
+  }
+
+  .quick-actions .primary-btn,
+  .quick-actions .secondary-btn {
+    width: auto;
+    padding-inline: 1rem;
+    font-size: 1rem;
+    line-height: 1.45;
+    white-space: nowrap;
   }
 
   .split-header {
@@ -506,7 +567,7 @@ details[open] summary {
   }
 
   .grid-three {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .weekday-selector {

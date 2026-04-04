@@ -1,3 +1,5 @@
+[**▶️ DEMO LIVE**](https://adrian-marinescu-ch.github.io/gym-subscription-calendar/) 
+
 # Gym Subscription Calculator PWA
 
 Static GitHub Pages-ready bundle for a gym subscription calculator with:
@@ -8,7 +10,7 @@ Static GitHub Pages-ready bundle for a gym subscription calculator with:
 - editable excluded date ranges
 - cumulative payment thresholds and due dates
 - CSV export
-- ICS export
+- Calendar (ICS) export
 - local storage persistence
 - shareable URL state
 - installable PWA shell with offline support
@@ -23,7 +25,7 @@ Static GitHub Pages-ready bundle for a gym subscription calculator with:
 
 ---
 
-# Calculator PWA pentru abonamentul la sală
+# Calculator pentru abonamentul la sală (PWA)
 
 Pachet static pregătit pentru GitHub Pages, pentru un calculator de abonament la sală, cu:
 
@@ -33,7 +35,7 @@ Pachet static pregătit pentru GitHub Pages, pentru un calculator de abonament l
 - intervale de date excluse, care pot fi modificate
 - praguri de plată cumulative și date de plată
 - export CSV
-- export ICS
+- export Calendar (ICS)
 - salvare automată în local storage
 - stare care poate fi partajată prin URL
 - aplicație PWA care se poate instala și merge și fără internet

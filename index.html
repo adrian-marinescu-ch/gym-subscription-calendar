@@ -15,9 +15,13 @@
     <header class="topbar card">
       <div>
         <h1 data-i18n="title"></h1>
-        <p class="muted" data-i18n="subtitle"></p>
       </div>
       <div class="topbar-actions">
+        <div class="quick-actions" role="group" aria-label="Quick actions">
+          <button id="copyLinkBtn" type="button" class="primary-btn" data-i18n="copyShareLink"></button>
+          <button id="exportCsvBtn" type="button" class="secondary-btn" data-i18n="exportCsv"></button>
+          <button id="exportIcsBtn" type="button" class="secondary-btn" data-i18n="exportIcs"></button>
+        </div>
         <div class="lang-switcher" role="group" aria-label="Language switcher">
           <button type="button" class="lang-btn" data-lang="ro">RO</button>
           <button type="button" class="lang-btn" data-lang="en">EN</button>
@@ -37,103 +41,90 @@
     <main class="page-grid">
       <div class="grid-two">
         <section class="card">
-          <div class="card-header">
-            <h2 data-i18n="configTitle"></h2>
-          </div>
+          <details id="configDetails">
+            <summary data-i18n="configTitle"></summary>
 
-          <div class="field-grid">
-            <label class="field">
-              <span data-i18n="startDate"></span>
-              <input id="startDateInput" type="date" required>
-            </label>
+            <div class="field-grid">
+              <label class="field">
+                <span data-i18n="startDate"></span>
+                <input id="startDateInput" type="date" required>
+              </label>
 
-            <label class="field">
-              <span data-i18n="sessionTime"></span>
-              <input id="sessionTimeInput" type="time" step="900" required>
-            </label>
+              <label class="field">
+                <span data-i18n="sessionTime"></span>
+                <input id="sessionTimeInput" type="time" step="900" required>
+              </label>
 
-            <label class="field">
-              <span data-i18n="monthlyPrice"></span>
-              <input id="monthlyPriceInput" type="number" min="0" step="0.01" inputmode="decimal" required>
-            </label>
+              <label class="field">
+                <span data-i18n="monthlyPrice"></span>
+                <input id="monthlyPriceInput" type="number" min="0" step="0.01" inputmode="decimal" required>
+              </label>
 
-            <label class="field field-readonly">
-              <span data-i18n="timezoneDetected"></span>
-              <input id="timezoneDisplay" type="text" readonly>
-            </label>
-          </div>
+              <label class="field field-readonly">
+                <span data-i18n="timezoneDetected"></span>
+                <input id="timezoneDisplay" type="text" readonly>
+              </label>
+            </div>
 
-          <div class="field-block">
-            <div class="field-label" data-i18n="weekdays"></div>
-            <div id="weekdaySelector" class="weekday-selector"></div>
-          </div>
+            <div class="field-block">
+              <div class="field-label" data-i18n="weekdays"></div>
+              <div id="weekdaySelector" class="weekday-selector"></div>
+            </div>
+          </details>
         </section>
 
         <section class="card">
-          <div class="card-header split-header">
-            <div>
-              <h2 data-i18n="excludedTitle"></h2>
+          <details id="excludedDetails">
+            <summary data-i18n="excludedTitle"></summary>
+            <div class="split-header">
               <p class="muted" data-i18n="excludedHint"></p>
+              <button id="addExclusionBtn" type="button" class="secondary-btn" data-i18n="addInterval"></button>
             </div>
-            <button id="addExclusionBtn" type="button" class="secondary-btn" data-i18n="addInterval"></button>
-          </div>
-          <div id="exclusionList" class="exclusion-list"></div>
+            <div id="exclusionList" class="exclusion-list"></div>
+          </details>
         </section>
       </div>
 
       <div class="grid-three">
         <section class="card">
-          <div class="card-header">
-            <h2 data-i18n="summaryTitle"></h2>
-          </div>
-          <div class="summary-grid">
-            <div class="summary-item">
-              <span class="summary-label" data-i18n="annualTotal"></span>
-              <strong id="annualTotalValue"></strong>
+          <details id="summaryDetails">
+            <summary data-i18n="summaryTitle"></summary>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label" data-i18n="annualTotal"></span>
+                <strong id="annualTotalValue"></strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label" data-i18n="eligibleSessions"></span>
+                <strong id="eligibleSessionsValue"></strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label" data-i18n="costPerSession"></span>
+                <strong id="costPerSessionValue"></strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label" data-i18n="cycleRange"></span>
+                <strong id="cycleRangeValue"></strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label" data-i18n="remainingSessions"></span>
+                <strong id="remainingSessionsValue"></strong>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label" data-i18n="excludedPotentialSessions"></span>
+                <strong id="excludedPotentialSessionsValue"></strong>
+              </div>
             </div>
-            <div class="summary-item">
-              <span class="summary-label" data-i18n="eligibleSessions"></span>
-              <strong id="eligibleSessionsValue"></strong>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label" data-i18n="costPerSession"></span>
-              <strong id="costPerSessionValue"></strong>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label" data-i18n="cycleRange"></span>
-              <strong id="cycleRangeValue"></strong>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label" data-i18n="remainingSessions"></span>
-              <strong id="remainingSessionsValue"></strong>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label" data-i18n="excludedPotentialSessions"></span>
-              <strong id="excludedPotentialSessionsValue"></strong>
-            </div>
-          </div>
+          </details>
         </section>
 
         <section class="card">
-          <div class="card-header">
-            <h2 data-i18n="plainLanguageTitle"></h2>
-          </div>
-          <div id="plainLanguageNotes" class="stack-text"></div>
+          <details id="plainLanguageDetails">
+            <summary data-i18n="plainLanguageTitle"></summary>
+            <div id="plainLanguageNotes" class="stack-text"></div>
+          </details>
         </section>
 
-        <section class="card">
-          <div class="card-header">
-            <h2 data-i18n="actionsTitle"></h2>
-          </div>
-          <div class="action-row">
-            <button id="copyLinkBtn" type="button" class="primary-btn" data-i18n="copyShareLink"></button>
-            <button id="exportCsvBtn" type="button" class="secondary-btn" data-i18n="exportCsv"></button>
-            <button id="exportIcsBtn" type="button" class="secondary-btn" data-i18n="exportIcs"></button>
-          </div>
-          <p class="muted" data-i18n="shareHint"></p>
-          <p class="muted" data-i18n="icsHint"></p>
-          <p class="muted" data-i18n="offlineHint"></p>
-        </section>
       </div>
 
       <section class="card">
@@ -183,6 +174,10 @@
         </details>
       </section>
     </main>
+
+    <footer class="site-footer">
+      <p>Dezvoltat de <a href="https://github.com/adrian-marinescu-ch/gym-subscription-calendar" target="_blank">Adrian Marinescu</a> cu ❤️ in 2026</p>
+    </footer>
   </div>
 
   <script src="./app.js"></script>

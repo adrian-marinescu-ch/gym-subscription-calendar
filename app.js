@@ -11,7 +11,6 @@
   const I18N = {
     ro: {
       title: 'Calculator abonament sală',
-      subtitle: 'Totalul anual rămâne fix, iar costul pe ședință se recalculează automat din ședințele eligibile din ciclul de 12 luni.',
       configTitle: 'Configurare',
       startDate: 'Data de start',
       sessionTime: 'Ora ședinței',
@@ -39,7 +38,7 @@
       actionsTitle: 'Export și distribuire',
       copyShareLink: 'Copiază link-ul sesiunii',
       exportCsv: 'Export CSV',
-      exportIcs: 'Export ICS',
+      exportIcs: 'Export Calendar',
       shareHint: 'Link-ul copiat include data de start, ora ședinței, prețul, zilele și intervalele excluse. Limba rămâne locală pe fiecare dispozitiv.',
       icsHint: 'Exportul ICS include toate ședințele eligibile ca evenimente de 120 de minute la ora selectată, în fusul orar detectat, plus scadențele de plată cu prefix vizibil.',
       offlineHint: 'Instalează aplicația ca PWA pentru utilizare offline după prima încărcare.',
@@ -109,7 +108,6 @@
     },
     en: {
       title: 'Gym subscription calculator',
-      subtitle: 'The annual total stays fixed while the cost per session recalculates automatically from the eligible sessions in the 12-month cycle.',
       configTitle: 'Setup',
       startDate: 'Start date',
       sessionTime: 'Session hour',
@@ -137,7 +135,7 @@
       actionsTitle: 'Export and sharing',
       copyShareLink: 'Copy share link',
       exportCsv: 'Export CSV',
-      exportIcs: 'Export ICS',
+      exportIcs: 'Export Calendar',
       shareHint: 'The copied link includes the start date, session hour, price, weekdays, and excluded ranges. Language stays local on each device.',
       icsHint: 'ICS export includes all eligible gym sessions as 120-minute events at the selected hour, in the detected time zone, plus payment deadlines with a clear prefix.',
       offlineHint: 'Install the app as a PWA to use it offline after the first load.',
