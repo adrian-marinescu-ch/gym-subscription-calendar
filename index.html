@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f2937">
+  <meta name="description" content="Gym subscription calculator with variable session cost, payment schedule, sharing, exports, and offline support.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./style.css">
+  <title>Gym Subscription Calculator</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar card">
+      <div>
+        <h1 data-i18n="title"></h1>
+        <p class="muted" data-i18n="subtitle"></p>
+      </div>
+      <div class="topbar-actions">
+        <div class="lang-switcher" role="group" aria-label="Language switcher">
+          <button type="button" class="lang-btn" data-lang="ro">RO</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="status-stack">
+      <div id="offlineBanner" class="banner hidden"></div>
+      <div id="updateBanner" class="banner hidden">
+        <span id="updateBannerText"></span>
+        <button id="updateButton" type="button" class="secondary-btn" data-i18n="refreshForUpdate"></button>
+      </div>
+      <div id="toast" class="banner info hidden"></div>
+    </section>
+
+    <main class="page-grid">
+      <div class="grid-two">
+        <section class="card">
+          <div class="card-header">
+            <h2 data-i18n="configTitle"></h2>
+          </div>
+          <div class="field-grid">
+            <label class="field">
+              <span data-i18n="startDate"></span>
+              <input id="startDateInput" type="date" required>
+            </label>
+            <label class="field">
+              <span data-i18n="monthlyPrice"></span>
+              <input id="monthlyPriceInput" type="number" min="0" step="0.01" inputmode="decimal" required>
+            </label>
+          </div>
+          <div class="field-block">
+            <div class="field-label" data-i18n="weekdays"></div>
+            <div id="weekdaySelector" class="weekday-selector"></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header split-header">
+            <div>
+              <h2 data-i18n="excludedTitle"></h2>
+              <p class="muted" data-i18n="excludedHint"></p>
+            </div>
+            <button id="addExclusionBtn" type="button" class="secondary-btn" data-i18n="addInterval"></button>
+          </div>
+          <div id="exclusionList" class="exclusion-list"></div>
+        </section>
+      </div>
+
+      <div class="grid-three">
+        <section class="card">
+          <div class="card-header">
+            <h2 data-i18n="summaryTitle"></h2>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="annualTotal"></span>
+              <strong id="annualTotalValue"></strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="eligibleSessions"></span>
+              <strong id="eligibleSessionsValue"></strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="costPerSession"></span>
+              <strong id="costPerSessionValue"></strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="cycleRange"></span>
+              <strong id="cycleRangeValue"></strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="remainingSessions"></span>
+              <strong id="remainingSessionsValue"></strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="excludedPotentialSessions"></span>
+              <strong id="excludedPotentialSessionsValue"></strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2 data-i18n="plainLanguageTitle"></h2>
+          </div>
+          <div id="plainLanguageNotes" class="stack-text"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h2 data-i18n="actionsTitle"></h2>
+          </div>
+          <div class="action-row">
+            <button id="copyLinkBtn" type="button" class="primary-btn" data-i18n="copyShareLink"></button>
+            <button id="exportCsvBtn" type="button" class="secondary-btn" data-i18n="exportCsv"></button>
+            <button id="exportIcsBtn" type="button" class="secondary-btn" data-i18n="exportIcs"></button>
+          </div>
+          <p class="muted" data-i18n="shareHint"></p>
+          <p class="muted" data-i18n="offlineHint"></p>
+        </section>
+      </div>
+
+      <section class="card">
+        <div class="card-header split-header">
+          <div>
+            <h2 data-i18n="paymentTitle"></h2>
+            <p class="muted" data-i18n="paymentHint"></p>
+          </div>
+          <div id="nextDeadlineBadge" class="next-deadline-badge"></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="paymentNo"></th>
+                <th data-i18n="paymentDate"></th>
+                <th data-i18n="paymentThreshold"></th>
+                <th data-i18n="referenceMonth"></th>
+                <th data-i18n="monthSessionCount"></th>
+                <th data-i18n="coverageDate"></th>
+              </tr>
+            </thead>
+            <tbody id="paymentTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <details id="calendarDetails">
+          <summary id="calendarSummaryLine"></summary>
+          <p class="muted" data-i18n="calendarHint"></p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="date"></th>
+                  <th data-i18n="weekday"></th>
+                  <th data-i18n="weekdayEnabled"></th>
+                  <th data-i18n="excludedColumn"></th>
+                  <th data-i18n="eligible"></th>
+                  <th data-i18n="sessionNumber"></th>
+                  <th data-i18n="sessionValue"></th>
+                  <th data-i18n="accumulated"></th>
+                </tr>
+              </thead>
+              <tbody id="calendarTableBody"></tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
