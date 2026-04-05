@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'gym-subscription-pwa-state-v3';
+  const STORAGE_KEY = 'gym-subscription-pwa-state-v4';
   const LEGACY_STORAGE_KEYS = ['gym-subscription-pwa-state-v1'];
   const URL_PARAM = 'state';
   const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -47,7 +47,7 @@
       paymentTitle: 'Program plăți',
       paymentNo: 'Plata',
       paymentDate: 'Data plății',
-      paymentThreshold: 'Prag cumulat',
+      paymentThreshold: 'Cheltuit cumulat (intervale)',
       monthSessionCount: 'Ședințe',
       coverageDate: 'Acoperă până la',
       refreshForUpdate: 'Reîncarcă pentru actualizare',
@@ -141,7 +141,7 @@
       paymentTitle: 'Payment schedule',
       paymentNo: 'Payment',
       paymentDate: 'Payment date',
-      paymentThreshold: 'Cumulative threshold',
+      paymentThreshold: 'Spent cumulative (ranges)',
       monthSessionCount: 'Sessions',
       coverageDate: 'Covers until',
       refreshForUpdate: 'Reload to update',
@@ -675,19 +675,42 @@
       });
     }
 
-    const payments = thresholds.map((item, index) => {
+    const paymentsByRange = thresholds.map((item, index) => {
       const paymentDate =
         index === 0
           ? validStart
           : thresholds[index - 1]?.consumedOn || '';
-      
+      const coverageDate = item.consumedOn || '';
+      const rangeStartDate = paymentDate
+        ? (index === 0 ? paymentDate : formatIsoDate(addDays(parseIsoDate(paymentDate), 1)))
+        : '';
+      const spentInRange = rangeStartDate && coverageDate
+        ? rows.reduce((sum, row) => (
+            row.eligible &&
+            Number.isFinite(row.sessionValue) &&
+            row.iso >= rangeStartDate &&
+            row.iso <= coverageDate
+              ? sum + row.sessionValue
+              : sum
+          ), 0)
+        : 0;
+
       const monthKey = paymentDate ? paymentDate.slice(0, 7) : '';
       return {
         number: item.number,
         paymentDate,
         threshold: item.threshold,
+        spentInRange,
         monthSessionCount: monthKey ? (monthCounts[monthKey] || 0) : '',
-        coverageDate: item.consumedOn
+        coverageDate
+      };
+    });
+    let runningSpent = 0;
+    const payments = paymentsByRange.map((payment) => {
+      runningSpent += payment.spentInRange;
+      return {
+        ...payment,
+        spentInRange: runningSpent
       };
     });
 
@@ -793,7 +816,7 @@
           <td class="mono">${payment.paymentDate ? escapeHtml(formatDateLabel(payment.paymentDate)) : escapeHtml(t('none'))}</td>
           <td class="mono">${payment.coverageDate ? escapeHtml(formatDateLabel(payment.coverageDate)) : escapeHtml(t('none'))}</td>
           <td>${escapeHtml(monthCount)}</td>
-          <td class="mono">${escapeHtml(formatMoney(payment.threshold))}</td>
+          <td class="mono">${escapeHtml(formatMoney(payment.spentInRange))}</td>
         </tr>
       `;
     }).join('');
@@ -1011,7 +1034,7 @@
         payment.number,
         payment.paymentDate || '',
         payment.coverageDate || '',
-        payment.threshold.toFixed(2),
+        payment.spentInRange.toFixed(2),
         payment.monthSessionCount === '' ? '' : String(payment.monthSessionCount)
       ])
     ];
