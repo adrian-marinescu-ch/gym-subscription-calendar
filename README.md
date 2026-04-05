@@ -4,7 +4,7 @@
 
 Static GitHub Pages-ready bundle for a gym subscription calculator with:
 
-- fixed annual total = monthly price x 12
+- fixed period total = monthly price x remaining months until year end
 - variable cost per session from real eligible sessions
 - editable weekday selection
 - editable excluded date ranges
@@ -29,7 +29,7 @@ Static GitHub Pages-ready bundle for a gym subscription calculator with:
 
 Pachet static pregătit pentru GitHub Pages, pentru un calculator de abonament la sală, cu:
 
-- total anual fix = prețul lunar x 12
+- total fix pe perioadă = prețul lunar x lunile rămase până la final de an
 - cost pe ședință care se calculează automat din ședințele eligibile reale
 - alegere editabilă a zilelor din săptămână
 - intervale de date excluse, care pot fi modificate

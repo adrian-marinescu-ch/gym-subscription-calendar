@@ -28,12 +28,12 @@
       intervalInvalid: 'Data de final trebuie să fie aceeași sau după data de start.',
       noExclusions: 'Nu există intervale excluse. Poți adăuga unul nou.',
       summaryTitle: 'Rezumat',
-      annualTotal: 'Total anual',
+      annualTotal: 'Total perioadă',
       eligibleSessions: 'Ședințe eligibile',
       costPerSession: 'Cost / ședință',
-      cycleRange: 'Ciclu activ',
-      remainingSessions: 'Ședințe rămase din azi',
-      excludedPotentialSessions: 'Ședințe eliminate de intervale',
+      cycleRange: 'Perioada activă',
+      remainingSessions: 'Ședințe rămase din perioadă',
+      excludedPotentialSessions: 'Ședințe excluse din perioadă',
       plainLanguageTitle: 'Explicații',
       actionsTitle: 'Export și distribuire',
       copyShareLink: 'Copiază link-ul sesiunii',
@@ -51,7 +51,7 @@
       refreshForUpdate: 'Reîncarcă pentru actualizare',
       offlineBanner: 'Ești offline. Interfața din cache și ultima stare locală rămân disponibile.',
       updateReady: 'Este disponibilă o versiune nouă a aplicației.',
-      calendarHint: 'Tabelul include doar zilele din ciclul activ de 12 luni.',
+      calendarHint: 'Tabelul include doar zilele dintre data de start și 31 decembrie din același an.',
       date: 'Data',
       weekday: 'Zi',
       weekdayEnabled: 'Zi selectată',
@@ -90,16 +90,16 @@
         6: 'Sâmbătă',
         0: 'Duminică'
       },
-      calendarSummary: ({ count }) => `Baza calendaristică: ${count} zile din ciclul de 12 luni`,
-      noteAnnual: ({ annual, monthly }) => `Totalul anual rămâne fix la ${annual} (${monthly} x 12).`,
-      noteEligible: ({ count, removed }) => `În ciclul curent există ${count} ședințe eligibile, iar intervalele excluse elimină ${removed} zile care altfel ar fi fost eligibile.`,
-      noteCost: ({ annual, count, cost }) => `Costul pe ședință devine ${cost} pentru că formula este ${annual} / ${count}.`,
-      noteFinalCoverage: ({ date }) => `Ultimul prag anual este consumat la data de ${date}.`,
-      noteRemaining: ({ count }) => `De azi înainte mai rămân ${count} ședințe eligibile în acest ciclu.`,
+      calendarSummary: ({ count }) => `Baza calendaristică: ${count} zile din perioada activă`,
+      noteAnnual: ({ annual, monthly, months }) => `Totalul perioadei rămâne fix la ${annual} (${monthly} x ${months}).`,
+      noteEligible: ({ count, removed }) => `În perioada curentă există ${count} ședințe eligibile, iar intervalele excluse elimină ${removed} zile care altfel ar fi fost eligibile.`,
+      noteCost: ({ annual, count, cost }) => `Costul pe ședință devine ${cost} deoarece formula este ${annual} / ${count}.`,
+      noteFinalCoverage: ({ date }) => `Ultimul prag al perioadei este consumat la data de ${date}.`,
+      noteRemaining: ({ count }) => `De azi înainte mai rămân ${count} ședințe eligibile în această perioadă.`,
       noteInvalidIntervals: ({ count }) => `${count} interval(e) invalide sunt ignorate până le corectezi.`,
       noteNextPayment: ({ number, date, threshold }) => `Următoarea scadență este plata ${number} la data de ${date}, la pragul ${threshold}.`,
       nextDeadlineBadge: ({ number, date }) => `Următoarea scadență: plata ${number} - ${date}`,
-      noUpcomingDeadline: 'Nu mai există scadențe viitoare în acest ciclu.',
+      noUpcomingDeadline: 'Nu mai există scadențe viitoare în această perioadă.',
       icsCalendarName: 'Calendar abonament sală',
       icsPaymentSummary: ({ number }) => `[PLATĂ] Scadență abonament #${number}`,
       icsPaymentDescription: ({ threshold, coverage, month }) => `Prag cumulat: ${threshold}. Luna de referință: ${month}. Acoperă până la: ${coverage}.`,
@@ -125,10 +125,10 @@
       intervalInvalid: 'The end date must be the same as or after the start date.',
       noExclusions: 'There are no excluded ranges. You can add one now.',
       summaryTitle: 'Summary',
-      annualTotal: 'Annual total',
+      annualTotal: 'Period total',
       eligibleSessions: 'Eligible sessions',
       costPerSession: 'Cost / session',
-      cycleRange: 'Active cycle',
+      cycleRange: 'Active period',
       remainingSessions: 'Sessions remaining from today',
       excludedPotentialSessions: 'Sessions removed by ranges',
       plainLanguageTitle: 'Explanations',
@@ -148,7 +148,7 @@
       refreshForUpdate: 'Reload to update',
       offlineBanner: 'You are offline. The cached shell and your latest local state are still available.',
       updateReady: 'A newer version of the app is available.',
-      calendarHint: 'The table includes only the days inside the active 12-month cycle.',
+      calendarHint: 'The table includes only the days between the start date and December 31 of the same year.',
       date: 'Date',
       weekday: 'Weekday',
       weekdayEnabled: 'Weekday enabled',
@@ -187,16 +187,16 @@
         6: 'Saturday',
         0: 'Sunday'
       },
-      calendarSummary: ({ count }) => `Calendar base: ${count} days inside the 12-month cycle`,
-      noteAnnual: ({ annual, monthly }) => `The annual total stays fixed at ${annual} (${monthly} x 12).`,
-      noteEligible: ({ count, removed }) => `This cycle contains ${count} eligible sessions, and your excluded ranges remove ${removed} days that would otherwise have counted.`,
+      calendarSummary: ({ count }) => `Calendar base: ${count} days inside the active period`,
+      noteAnnual: ({ annual, monthly, months }) => `The period total stays fixed at ${annual} (${monthly} x ${months}).`,
+      noteEligible: ({ count, removed }) => `This period contains ${count} eligible sessions, and your excluded ranges remove ${removed} days that would otherwise have counted.`,
       noteCost: ({ annual, count, cost }) => `The cost per session becomes ${cost} because the formula is ${annual} / ${count}.`,
-      noteFinalCoverage: ({ date }) => `The final annual threshold is consumed on ${date}.`,
-      noteRemaining: ({ count }) => `From today onward, ${count} eligible sessions remain in this cycle.`,
+      noteFinalCoverage: ({ date }) => `The final threshold for this period is consumed on ${date}.`,
+      noteRemaining: ({ count }) => `From today onward, ${count} eligible sessions remain in this period.`,
       noteInvalidIntervals: ({ count }) => `${count} invalid range(s) are ignored until you fix them.`,
       noteNextPayment: ({ number, date, threshold }) => `The next due date is payment ${number} on ${date}, at the threshold ${threshold}.`,
       nextDeadlineBadge: ({ number, date }) => `Next due date: payment ${number} - ${date}`,
-      noUpcomingDeadline: 'There are no future due dates left in this cycle.',
+      noUpcomingDeadline: 'There are no future due dates left in this period.',
       icsCalendarName: 'Gym subscription calendar',
       icsPaymentSummary: ({ number }) => `[PAYMENT] Gym subscription due #${number}`,
       icsPaymentDescription: ({ threshold, coverage, month }) => `Cumulative threshold: ${threshold}. Reference month: ${month}. Covers until: ${coverage}.`,
@@ -570,8 +570,10 @@
   function calculateState(currentState) {
     const validStart = isIsoDate(currentState.startDate) ? currentState.startDate : DEFAULT_STATE.startDate;
     const startDate = parseIsoDate(validStart);
-    const cycleEndExclusive = addMonthsClamped(startDate, 12);
+    const startYear = startDate.getUTCFullYear();
+    const cycleEndExclusive = new Date(Date.UTC(startYear + 1, 0, 1));
     const cycleEndInclusive = addDays(cycleEndExclusive, -1);
+    const billingMonths = 12 - startDate.getUTCMonth();
     const selectedWeekdays = new Set(normalizeWeekdayList(currentState.weekdays));
     const exclusions = currentState.exclusions.map((item) => ({
       id: item.id,
@@ -582,7 +584,7 @@
 
     const monthlyPrice = Number(currentState.monthlyPrice) || 0;
     const monthlyPriceCents = Math.round(monthlyPrice * 100);
-    const annualTotalCents = monthlyPriceCents * 12;
+    const periodTotalCents = monthlyPriceCents * billingMonths;
     const hasPositivePrice = monthlyPriceCents > 0;
 
     let excludedPotentialSessions = 0;
@@ -594,13 +596,15 @@
     while (cursor.getTime() < cycleEndExclusive.getTime()) {
       const iso = formatIsoDate(cursor);
       const weekdayIndex = cursor.getUTCDay();
+      const isStartDate = iso === validStart;
       const weekdayEnabled = selectedWeekdays.has(weekdayIndex);
       const matchingExclusions = exclusions.filter((interval) => interval.valid && interval.start <= iso && iso <= interval.end);
       const excluded = matchingExclusions.length > 0;
-      if (weekdayEnabled && excluded) {
+      const wouldBeEligible = weekdayEnabled || isStartDate;
+      if (wouldBeEligible && excluded) {
         excludedPotentialSessions += 1;
       }
-      const eligible = weekdayEnabled && !excluded;
+      const eligible = wouldBeEligible && !excluded;
       let sessionNumber = null;
       if (eligible) {
         sessionCounter += 1;
@@ -623,9 +627,9 @@
     }
 
     const eligibleCount = sessionCounter;
-    const costPerSession = hasPositivePrice && eligibleCount > 0 ? annualTotalCents / eligibleCount / 100 : 0;
+    const costPerSession = hasPositivePrice && eligibleCount > 0 ? periodTotalCents / eligibleCount / 100 : 0;
     const thresholds = hasPositivePrice
-      ? Array.from({ length: 12 }, (_, index) => ({
+      ? Array.from({ length: billingMonths }, (_, index) => ({
           number: index + 1,
           thresholdCents: monthlyPriceCents * (index + 1),
           threshold: monthlyPriceCents * (index + 1) / 100,
@@ -639,11 +643,11 @@
         if (!row.eligible) {
           return;
         }
-        row.sessionValue = annualTotalCents / eligibleCount / 100;
-        row.accumulated = annualTotalCents * row.sessionNumber / eligibleCount / 100;
+        row.sessionValue = periodTotalCents / eligibleCount / 100;
+        row.accumulated = periodTotalCents * row.sessionNumber / eligibleCount / 100;
         while (
           thresholdCursor < thresholds.length &&
-          (annualTotalCents * row.sessionNumber / eligibleCount) + 0.0001 >= thresholds[thresholdCursor].thresholdCents
+          (periodTotalCents * row.sessionNumber / eligibleCount) + 0.0001 >= thresholds[thresholdCursor].thresholdCents
         ) {
           thresholds[thresholdCursor].consumedOn = row.iso;
           thresholdCursor += 1;
@@ -675,7 +679,8 @@
     return {
       validStart,
       cycleEndInclusive: formatIsoDate(cycleEndInclusive),
-      annualTotal: annualTotalCents / 100,
+      annualTotal: periodTotalCents / 100,
+      billingMonths,
       eligibleCount,
       costPerSession,
       excludedPotentialSessions,
@@ -701,7 +706,8 @@
     const notes = [];
     notes.push(t('noteAnnual', {
       annual: formatMoney(data.annualTotal),
-      monthly: formatMoney(Number(state.monthlyPrice) || 0)
+      monthly: formatMoney(Number(state.monthlyPrice) || 0),
+      months: formatCount(data.billingMonths)
     }));
 
     if (!data.hasPositivePrice) {
@@ -1248,17 +1254,6 @@
     const next = new Date(date.getTime());
     next.setUTCDate(next.getUTCDate() + amount);
     return next;
-  }
-
-  function addMonthsClamped(date, amount) {
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
-    const day = date.getUTCDate();
-    const targetMonthIndex = month + amount;
-    const targetYear = year + Math.floor(targetMonthIndex / 12);
-    const targetMonth = ((targetMonthIndex % 12) + 12) % 12;
-    const lastDay = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
-    return new Date(Date.UTC(targetYear, targetMonth, Math.min(day, lastDay)));
   }
 
   function todayIsoLocal() {
