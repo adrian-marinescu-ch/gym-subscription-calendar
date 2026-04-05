@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'gym-subscription-pwa-state-v4';
+  const STORAGE_KEY = 'gym-subscription-pwa-state-v5';
   const LEGACY_STORAGE_KEYS = ['gym-subscription-pwa-state-v1'];
   const URL_PARAM = 'state';
   const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -47,7 +47,7 @@
       paymentTitle: 'Program plăți',
       paymentNo: 'Plata',
       paymentDate: 'Data plății',
-      paymentThreshold: 'Cheltuit cumulat (intervale)',
+      paymentThreshold: 'Cheltuit cumulat până la acoperire',
       monthSessionCount: 'Ședințe',
       coverageDate: 'Acoperă până la',
       refreshForUpdate: 'Reîncarcă pentru actualizare',
@@ -141,7 +141,7 @@
       paymentTitle: 'Payment schedule',
       paymentNo: 'Payment',
       paymentDate: 'Payment date',
-      paymentThreshold: 'Spent cumulative (ranges)',
+      paymentThreshold: 'Spent cumulative to coverage',
       monthSessionCount: 'Sessions',
       coverageDate: 'Covers until',
       refreshForUpdate: 'Reload to update',
@@ -675,24 +675,46 @@
       });
     }
 
+    const accumulatedCentsByIso = {};
+    rows.forEach((row) => {
+      if (!row.eligible) {
+        return;
+      }
+      accumulatedCentsByIso[row.iso] = periodTotalCents * row.sessionNumber / eligibleCount;
+    });
+
+    const previousEligibleByIso = {};
+    let previousEligibleIso = '';
+    rows.forEach((row) => {
+      previousEligibleByIso[row.iso] = previousEligibleIso;
+      if (row.eligible) {
+        previousEligibleIso = row.iso;
+      }
+    });
+
     const paymentsByRange = thresholds.map((item, index) => {
-      const paymentDate =
-        index === 0
-          ? validStart
-          : thresholds[index - 1]?.consumedOn || '';
-      const coverageDate = item.consumedOn || '';
-      const rangeStartDate = paymentDate
-        ? (index === 0 ? paymentDate : formatIsoDate(addDays(parseIsoDate(paymentDate), 1)))
+      let paymentDate = '';
+      if (index === 0) {
+        paymentDate = validStart;
+      } else {
+        const previousThresholdCoverage = thresholds[index - 1]?.consumedOn || '';
+        paymentDate = previousThresholdCoverage
+          ? (previousEligibleByIso[previousThresholdCoverage] || previousThresholdCoverage)
+          : '';
+      }
+
+      const thresholdCrossDate = item.consumedOn || '';
+      const thresholdCrossAccumulated = thresholdCrossDate ? accumulatedCentsByIso[thresholdCrossDate] : null;
+      const coverageDate = thresholdCrossDate
+        ? (
+          Number.isFinite(thresholdCrossAccumulated) &&
+          thresholdCrossAccumulated <= item.thresholdCents + 0.0001
+            ? thresholdCrossDate
+            : (previousEligibleByIso[thresholdCrossDate] || thresholdCrossDate)
+        )
         : '';
-      const spentInRange = rangeStartDate && coverageDate
-        ? rows.reduce((sum, row) => (
-            row.eligible &&
-            Number.isFinite(row.sessionValue) &&
-            row.iso >= rangeStartDate &&
-            row.iso <= coverageDate
-              ? sum + row.sessionValue
-              : sum
-          ), 0)
+      const spentInRange = coverageDate && Number.isFinite(accumulatedCentsByIso[coverageDate])
+        ? accumulatedCentsByIso[coverageDate] / 100
         : 0;
 
       const monthKey = paymentDate ? paymentDate.slice(0, 7) : '';
@@ -705,14 +727,7 @@
         coverageDate
       };
     });
-    let runningSpent = 0;
-    const payments = paymentsByRange.map((payment) => {
-      runningSpent += payment.spentInRange;
-      return {
-        ...payment,
-        spentInRange: runningSpent
-      };
-    });
+    const payments = paymentsByRange;
 
     const todayIso = todayIsoLocal();
     const nextPayment = payments.find((payment) => payment.paymentDate && payment.paymentDate >= todayIso) || null;
