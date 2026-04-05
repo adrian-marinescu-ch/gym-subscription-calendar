@@ -190,6 +190,43 @@ input:focus {
   color: var(--info-text);
 }
 
+.cookie-banner {
+  position: fixed;
+  left: 0.85rem;
+  right: 0.85rem;
+  bottom: 0.85rem;
+  z-index: 40;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.cookie-banner-content {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.cookie-banner-content strong {
+  font-size: 1rem;
+}
+
+.cookie-banner-content p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.cookie-banner-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
 .hidden {
   display: none !important;
 }
@@ -536,6 +573,12 @@ details[open] summary {
     flex-direction: row;
     align-items: flex-start;
     justify-content: space-between;
+  }
+
+  .cookie-banner {
+    left: 1rem;
+    right: 1rem;
+    margin: 0 auto;
   }
 
   .field-grid,

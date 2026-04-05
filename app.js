@@ -7,6 +7,8 @@
   const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
   const DEFAULT_SESSION_TIME = '19:30';
   const SESSION_DURATION_MINUTES = 120;
+  const GA_MEASUREMENT_ID = 'G-9BMNLWVFC4';
+  const ANALYTICS_CONSENT_KEY = 'gym-subscription-analytics-consent-v1';
 
   const I18N = {
     ro: {
@@ -51,6 +53,12 @@
       refreshForUpdate: 'Reîncarcă pentru actualizare',
       offlineBanner: 'Ești offline. Interfața din cache și ultima stare locală rămân disponibile.',
       updateReady: 'Este disponibilă o versiune nouă a aplicației.',
+      gdprTitle: 'Cookie-uri și confidențialitate',
+      gdprMessage: 'Stocăm local configurarea aplicației și folosim cookie-uri Google Analytics pentru a măsura paginile vizitate și modificările câmpurilor. Poți accepta sau refuza cookie-urile de analiză.',
+      gdprAccept: 'Acceptă',
+      gdprReject: 'Refuză',
+      gdprAccepted: 'Cookie-urile au fost acceptate.',
+      gdprRejected: 'Cookie-urile au fost refuzate.',
       calendarHint: 'Tabelul include doar zilele dintre data de start și 31 decembrie din același an.',
       date: 'Data',
       weekday: 'Zi',
@@ -72,15 +80,6 @@
       noCalendarEventsNote: 'Nu există evenimente eligibile pentru exportul ICS.',
       icsShared: 'Fișierul ICS a fost trimis către foaia de partajare nativă.',
       icsDownloadStarted: 'Fișierul ICS a fost generat.',
-      weekdayShort: {
-        1: 'L',
-        2: 'Ma',
-        3: 'Mi',
-        4: 'J',
-        5: 'V',
-        6: 'S',
-        0: 'D'
-      },
       weekdayLong: {
         1: 'Luni',
         2: 'Marți',
@@ -148,6 +147,12 @@
       refreshForUpdate: 'Reload to update',
       offlineBanner: 'You are offline. The cached shell and your latest local state are still available.',
       updateReady: 'A newer version of the app is available.',
+      gdprTitle: 'Cookies and privacy',
+      gdprMessage: 'We store your app configuration locally and use Google Analytics cookies to measure page views and field changes. You can accept or decline analytics cookies.',
+      gdprAccept: 'Accept',
+      gdprReject: 'Decline',
+      gdprAccepted: 'Analytics cookies have been accepted.',
+      gdprRejected: 'Analytics cookies have been declined.',
       calendarHint: 'The table includes only the days between the start date and December 31 of the same year.',
       date: 'Date',
       weekday: 'Weekday',
@@ -169,15 +174,6 @@
       noCalendarEventsNote: 'There are no eligible events to export to ICS.',
       icsShared: 'The ICS file was handed to the native share sheet.',
       icsDownloadStarted: 'The ICS file was generated.',
-      weekdayShort: {
-        1: 'Mon',
-        2: 'Tue',
-        3: 'Wed',
-        4: 'Thu',
-        5: 'Fri',
-        6: 'Sat',
-        0: 'Sun'
-      },
       weekdayLong: {
         1: 'Monday',
         2: 'Tuesday',
@@ -248,6 +244,9 @@
     updateBanner: document.getElementById('updateBanner'),
     updateBannerText: document.getElementById('updateBannerText'),
     updateButton: document.getElementById('updateButton'),
+    gdprBanner: document.getElementById('gdprBanner'),
+    gdprAcceptBtn: document.getElementById('gdprAcceptBtn'),
+    gdprRejectBtn: document.getElementById('gdprRejectBtn'),
     toast: document.getElementById('toast'),
     langButtons: Array.from(document.querySelectorAll('.lang-btn'))
   };
@@ -256,9 +255,12 @@
   let reloadOnControllerChange = false;
   let toastTimer = null;
   let currentData = null;
+  let analyticsScriptRequested = false;
+  let analyticsInitialized = false;
 
   const initialLoad = loadInitialState();
   let state = initialLoad.state;
+  let analyticsConsent = readAnalyticsConsent();
 
   init();
 
@@ -267,6 +269,9 @@
     renderApp();
     persistState();
     syncUrlWithState();
+    syncAnalyticsDisableFlag();
+    startAnalyticsIfAllowed();
+    trackPageView();
     registerServiceWorker();
     window.addEventListener('online', renderStatus);
     window.addEventListener('offline', renderStatus);
@@ -279,29 +284,29 @@
   function bindEvents() {
     refs.startDateInput.addEventListener('input', () => {
       state.startDate = isIsoDate(refs.startDateInput.value) ? refs.startDateInput.value : DEFAULT_STATE.startDate;
-      commitState();
+      commitState('start_date');
     });
 
     refs.sessionTimeInput.addEventListener('input', () => {
       state.sessionTime = normalizeTimeValue(refs.sessionTimeInput.value, state.sessionTime);
-      commitState();
+      commitState('session_time');
     });
 
     refs.monthlyPriceInput.addEventListener('input', () => {
       const nextValue = refs.monthlyPriceInput.value === '' ? 0 : Number(refs.monthlyPriceInput.value);
       state.monthlyPrice = Number.isFinite(nextValue) ? nextValue : 0;
-      commitState();
+      commitState('monthly_price');
     });
 
     refs.weekdaySelector.addEventListener('change', () => {
       const selected = Array.from(refs.weekdaySelector.querySelectorAll('input[type="checkbox"]:checked')).map((input) => Number(input.value));
       state.weekdays = normalizeWeekdayList(selected);
-      commitState();
+      commitState('weekdays');
     });
 
     refs.addExclusionBtn.addEventListener('click', () => {
       state.exclusions = [...state.exclusions, { id: makeId(), start: '', end: '' }];
-      commitState();
+      commitState('exclusion_add');
     });
 
     refs.exclusionList.addEventListener('input', (event) => {
@@ -317,7 +322,7 @@
       state.exclusions = state.exclusions.map((item) => (
         item.id === id ? { ...item, [field]: target.value || '' } : item
       ));
-      commitState();
+      commitState('exclusion_range');
     });
 
     refs.exclusionList.addEventListener('click', (event) => {
@@ -334,7 +339,7 @@
         return;
       }
       state.exclusions = state.exclusions.filter((item) => item.id !== id);
-      commitState();
+      commitState('exclusion_remove');
     });
 
     refs.copyLinkBtn.addEventListener('click', async () => {
@@ -366,6 +371,20 @@
       }
     });
 
+    refs.gdprAcceptBtn.addEventListener('click', () => {
+      setAnalyticsConsent('accepted');
+      startAnalyticsIfAllowed();
+      trackPageView();
+      renderStatus();
+      showToast(t('gdprAccepted'));
+    });
+
+    refs.gdprRejectBtn.addEventListener('click', () => {
+      setAnalyticsConsent('rejected');
+      renderStatus();
+      showToast(t('gdprRejected'));
+    });
+
     refs.langButtons.forEach((button) => {
       button.addEventListener('click', () => {
         const nextLanguage = button.dataset.lang === 'en' ? 'en' : 'ro';
@@ -373,15 +392,16 @@
           return;
         }
         state.language = nextLanguage;
-        commitState();
+        commitState('language');
       });
     });
   }
 
-  function commitState() {
+  function commitState(changeSource = 'fields') {
     persistState();
     syncUrlWithState();
     renderApp();
+    trackInputChange(changeSource);
   }
 
   function loadInitialState() {
@@ -798,6 +818,110 @@
   function renderStatus() {
     refs.offlineBanner.classList.toggle('hidden', navigator.onLine);
     refs.updateBanner.classList.toggle('hidden', !updateWorker);
+    refs.gdprBanner.classList.toggle('hidden', analyticsConsent === 'accepted' || analyticsConsent === 'rejected');
+  }
+
+  function readAnalyticsConsent() {
+    try {
+      const stored = localStorage.getItem(ANALYTICS_CONSENT_KEY);
+      return stored === 'accepted' || stored === 'rejected' ? stored : '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function setAnalyticsConsent(value) {
+    analyticsConsent = value === 'accepted' ? 'accepted' : 'rejected';
+    syncAnalyticsDisableFlag();
+    try {
+      localStorage.setItem(ANALYTICS_CONSENT_KEY, analyticsConsent);
+    } catch (error) {
+      console.warn('Could not persist analytics consent', error);
+    }
+  }
+
+  function syncAnalyticsDisableFlag() {
+    if (!GA_MEASUREMENT_ID) {
+      return;
+    }
+    window[`ga-disable-${GA_MEASUREMENT_ID}`] = analyticsConsent !== 'accepted';
+  }
+
+  function ensureGtagQueue() {
+    window.dataLayer = window.dataLayer || [];
+    if (typeof window.gtag !== 'function') {
+      window.gtag = function gtag() {
+        window.dataLayer.push(arguments);
+      };
+    }
+  }
+
+  function startAnalyticsIfAllowed() {
+    if (analyticsConsent !== 'accepted' || !GA_MEASUREMENT_ID || analyticsInitialized) {
+      return;
+    }
+
+    ensureGtagQueue();
+    window.gtag('js', new Date());
+    window.gtag('config', GA_MEASUREMENT_ID, { send_page_view: false });
+    analyticsInitialized = true;
+
+    if (!analyticsScriptRequested) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_MEASUREMENT_ID)}`;
+      document.head.appendChild(script);
+      analyticsScriptRequested = true;
+    }
+  }
+
+  function trackAnalyticsEvent(eventName, params) {
+    if (analyticsConsent !== 'accepted' || !GA_MEASUREMENT_ID) {
+      return;
+    }
+    startAnalyticsIfAllowed();
+    if (typeof window.gtag !== 'function') {
+      return;
+    }
+    window.gtag('event', eventName, params || {});
+  }
+
+  function trackPageView() {
+    trackAnalyticsEvent('page_view', {
+      page_title: document.title,
+      page_location: window.location.href,
+      page_path: `${window.location.pathname}${window.location.search}${window.location.hash}`
+    });
+  }
+
+  function buildAnalyticsFieldsObject() {
+    return {
+      startDate: state.startDate,
+      sessionTime: state.sessionTime,
+      monthlyPrice: Number(state.monthlyPrice) || 0,
+      weekdays: normalizeWeekdayList(state.weekdays),
+      exclusions: state.exclusions.map((item) => ({
+        start: item.start || '',
+        end: item.end || ''
+      })),
+      language: state.language
+    };
+  }
+
+  function safeJsonStringify(value) {
+    try {
+      return JSON.stringify(value);
+    } catch (error) {
+      return '{}';
+    }
+  }
+
+  function trackInputChange(inputName) {
+    const fields = buildAnalyticsFieldsObject();
+    trackAnalyticsEvent('input_change', {
+      input_name: inputName || 'fields',
+      fields_json: safeJsonStringify(fields)
+    });
   }
 
   function statusChip(value) {
